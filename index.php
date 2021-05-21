@@ -1,7 +1,23 @@
-<html>
+<?php
+
+
+require_once "config.php";
+
+
+$sql = "select alexa_rank, name, update_timestamp from domain where id < 50";
+$result = mysqli_query($link, $sql);
+
+?>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <title>your_domain website</title>
+    <meta charset="UTF-8">
+    <title>ORM</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
     <style>
         .grid-container {
@@ -32,21 +48,55 @@
         .list {
             grid-area: list;
         }
+
+        body {
+            font: 14px sans-serif;
+            text-align: center;
+            background-image: url(wp.jpg);
+            background-color: #cccccc;
+        }
+
+        table.tbl {
+            background: rgba(255, 255, 255, 0.9);
+        }
     </style>
 </head>
 
 <body>
     <div class="grid-container">
         <div class="search">
-            hello
-            </div>
+            <form action="/domain_handler.php">
+                <label for="domain_url">Seach</label><br>
+                <input type="text" id="domain_url" name="domain_url"><br><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
         <div class="tracking">
-        hello tracking</div>
+            hello tracking</div>
         <div class="web">
-        hello web </div>
+            hello web </div>
         <div class="list">
-        hello list</div>
+            <table class="tbl w3-table w3-striped w3-large w3-centered">
+                <tr>
+                    <th>#</th>
+                    <th>Domain</th>
+                    <th>Last Checked</th>
+                </tr>
+                <?php
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<tr>";
+                    echo "<td> {$row['alexa_rank']} </td>";
+                    echo "<td> <a href=\"domain.php?domain_url={$row['name']}\">{$row['name']}</a></td>";
+                    echo "<td> {$row['update_timestamp']} </td>";
+                    echo "</tr>";
+                }
+
+                mysqli_free_result($result);
+
+                mysqli_close($link);
+                ?>
+            </table>
+        </div>
     </div>
 </body>
-
 </html>
