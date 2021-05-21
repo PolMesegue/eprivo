@@ -47,6 +47,10 @@ $result = mysqli_query($link, $sql);
 
         .list {
             grid-area: list;
+            margin: auto;
+			width: 90%;
+			height: 450px;
+			overflow: auto;
         }
 
         body {
