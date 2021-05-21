@@ -37,10 +37,15 @@
 
 <body>
     <div class="grid-container">
-        <div class="search"></div>
-        <div class="tracking"></div>
-        <div class="web"></div>
-        <div class="list"></div>
+        <div class="search">
+            hello
+            </div>
+        <div class="tracking">
+        hello tracking</div>
+        <div class="web">
+        hello web </div>
+        <div class="list">
+        hello list</div>
     </div>
 </body>
 
