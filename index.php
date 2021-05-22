@@ -1,14 +1,3 @@
-<?php
-
-
-require_once "config.php";
-
-
-$sql = "select alexa_rank, name, update_timestamp from domain where id < 50";
-$result = mysqli_query($link, $sql);
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,7 +8,7 @@ $result = mysqli_query($link, $sql);
     <title>ePrivacy Observatory</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 </head>
 
 <body>
@@ -41,34 +30,31 @@ $result = mysqli_query($link, $sql);
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Top Intruder</button>
-                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Top Popular</button>
+                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="showTable()">Top Popular</button>
                     <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Top ?</button>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover text-center">
                         <tr>
                             <th>#</th>
                             <th>Domain</th>
                             <th>Intrusion Level</th>
                         </tr>
-                        <?php
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<tr>";
-                            echo "<td> {$row['alexa_rank']} </td>";
-                            echo "<td> <a href=\"domain.php?domain_url={$row['name']}\">{$row['name']}</a></td>";
-                            echo "<td> {$row['update_timestamp']} </td>";
-                            echo "</tr>";
-                        }
 
-                        mysqli_free_result($result);
-
-                        mysqli_close($link);
-                        ?>
                     </table>
                 </div>
-                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>
+                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                <!--    <table class="table table-striped table-hover text-center">
+                        <tr>
+                            <th>#</th>
+                            <th>Domain</th>
+                            <th>Intrusion Level</th>
+                        </tr>
+                    
+                    </table> -->
+                </div>
                 <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
             </div>
         </div>
@@ -76,6 +62,19 @@ $result = mysqli_query($link, $sql);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
+    <script>
+        function showTable() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("nav-profile").innerHTML =
+                        this.responseText;
+                }
+            };
+            xhttp.open("GET", "get_top_popular.php", true);
+            xhttp.send();
+        }
+    </script>
 </body>
 
 </html>
