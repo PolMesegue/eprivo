@@ -84,7 +84,7 @@ $result = mysqli_query($link, $sql);
                 <tr>
                     <th>#</th>
                     <th>Domain</th>
-                    <th>Last Checked</th>
+                    <th>Intrusion Level</th>
                 </tr>
                 <?php
                 while ($row = mysqli_fetch_assoc($result)) {
