@@ -1,8 +1,3 @@
-<?php
-require_once "config.php";
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,69 +5,51 @@ require_once "config.php";
     <meta charset="UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo "{$_GET["domain_url"]}" ?></title>
+    <title>ePrivacy Observatory</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/682550c010.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
 
 </head>
-<body>
 
-	<form action="/domain_updater.php">
-		<label for="domain_url">Update this domain</label><br>
-		<input type="hidden" id="domain_url" name="domain_url" value=<?php echo "{$_GET["domain_url"]}" ?> ><br><br>
-		<input type="submit" value="Submit">
-	</form> 
-
-	<br><br>
-
-	<div class="tabl">
-		<table>
-			<tr>
-				<th>#id</th>
-				<th>Url</th>
-				<th>type</th>
-				<th>Country</th>
-				<th>is_EU</th>
-				<th>resource_id</th>
-
-			</tr>
-
-			<?php
-
-			$domain = trim($_GET["domain_url"]);
+<body onload="showTableIntruder()">
+    <div class="grid-container">
+        <div class="search">
+            <div class="row justify-content-center padding">
+                <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
+                    <form action="#" class="domain-form">
+                        <div class="form-group d-md-flex"> <input type="text" class="form-control px-4" placeholder="Insert domain here..."> <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain"> </div>
+                    </form>
+                  <!--  <p class="domain-price text-center"><span><small>.com</small>10.75</span> <span><small>.net</small>19.90</span> <span><small>.biz</small>$5.95</span> <span><small>.gov</small>$3.95</span></p> -->
+                </div>
+            </div>
+        </div>
+        <div class="tracking">
 
 
-			$sql="SELECT url.id, url.url, url.type, url.country_code, url.is_EU ,url.resource_id FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ?";
+        </div>
+        <div class="web">     
+        </div>
+        <div class="list">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true"  onclick="showTableIntruder()">Resources</button>
+                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" onclick="showTablePopular()">Map</button>
+                    
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-graph" role="tabpanel" aria-labelledby="nav-graph-tab">
+                </div>
+                <div class="tab-pane fade" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
 
-			if ($stmt = mysqli_prepare($link, $sql)) {
-				mysqli_stmt_bind_param($stmt, "s", $param_domain);
+                </div>
+            </div>
+        </div>
+    </div>
 
-				$param_domain = $domain;
-
-				if (mysqli_stmt_execute($stmt)) {
-					mysqli_stmt_bind_result($stmt, $id, $url, $type, $country_code, $is_EU ,$resource_id);
-					while (mysqli_stmt_fetch($stmt)) { 
-						echo "<tr>";
-						echo "<td> $id </td>";
-						echo "<td> <a href=\"url_tracking.php?url_id=$id\">$url</a></td>";
-						echo "<td> $type </td>";
-						echo "<td> $country_code </td>";
-						echo "<td> $is_EU </td>";
-						echo "<td> <a href=\"resource.php?resource_id=$resource_id\">$resource_id</a></td>";
-						echo "</tr>";
-					}
-
-				}
-			}
-
-
-			mysqli_stmt_close($stmt);
-
-			mysqli_close($link);
-			?>
-
-		</table>
-	</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    
 </body>
+
 </html>
