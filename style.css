@@ -31,17 +31,54 @@
     overflow: auto;
 }
 
-/*
-body {
-    font: 14px sans-serif;
-    text-align: center;
-    /*background-image: url(wp.jpg);
-    background-color: #cccccc;
+.padding {
+    padding: 1rem !important
 }
 
-
-table.tbl {
-    background: rgba(255, 255, 255, 0.9);
+.domain-form .form-group {
+    border: 1px solid #9fe7f0;
+    padding: 20px
 }
 
-*/
+.domain-form .form-group input {
+    height: 70px !important;
+    border: transparent
+}
+
+.form-control {
+    height: 52px !important;
+    background: #fff !important;
+    color: #3a4348 !important;
+    font-size: 18px;
+    border-radius: 0px;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important
+}
+
+.px-4 {
+    padding-left: 1.5rem !important
+}
+
+.domain-form .form-group .search-domain {
+    background: #225ad4;
+    border: 2px solid #225ad4;
+    color: #fff;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -ms-border-radius: 0;
+    border-radius: 0
+}
+
+.domain-price span {
+    color: #3a4348;
+    margin: 0 10px
+}
+
+.domain-price span small {
+    color: #24bdc9
+}
+
+.fa-plus-square {
+    background: white;
+    color: #45bbff;
+  }
