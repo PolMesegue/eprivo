@@ -12,12 +12,14 @@ echo "<tr>";
 echo "<th>#</th>";
 echo "<th>Domain</th>";
 echo "<th>Intrusion Level</th>";
+echo "<th> </th>";
 echo "</tr>";
 while ($row = mysqli_fetch_assoc($result)) {
     echo "<tr>";
     echo "<td> {$row['alexa_rank']} </td>";
     echo "<td> <a href=\"domain.php?domain_url={$row['name']}\">{$row['name']}</a></td>";
     echo "<td> {$row['update_timestamp']} </td>";
+    echo "<td><i class=\"far fa-plus-square\"></i> </td>";
     echo "</tr>";
 }
 

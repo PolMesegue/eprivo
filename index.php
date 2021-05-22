@@ -28,9 +28,7 @@
 
 
         </div>
-        <div class="web">
-        <a href="#" class="fa fa-rss">aaa</a>
-        <i class="far fa-plus-square">bbb</i>        
+        <div class="web">     
         </div>
         <div class="list">
             <nav>
