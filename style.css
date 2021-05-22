@@ -1,0 +1,47 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    gap: 0px 0px;
+    grid-template-areas:
+        "search search search search"
+        "list list tracking tracking"
+        "list list tracking tracking"
+        "list list web web"
+        "list list web web";
+}
+
+.search {
+    grid-area: search;
+}
+
+.tracking {
+    grid-area: tracking;
+}
+
+.web {
+    grid-area: web;
+}
+
+.list {
+    grid-area: list;
+    margin: auto;
+    width: 90%;
+    height: 450px;
+    overflow: auto;
+}
+
+/*
+body {
+    font: 14px sans-serif;
+    text-align: center;
+    /*background-image: url(wp.jpg);
+    background-color: #cccccc;
+}
+
+
+table.tbl {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+*/

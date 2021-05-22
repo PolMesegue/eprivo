@@ -9,61 +9,17 @@ $result = mysqli_query($link, $sql);
 
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>ORM</title>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
-    <style>
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
-            gap: 0px 0px;
-            grid-template-areas:
-                "search search search search"
-                "list list tracking tracking"
-                "list list tracking tracking"
-                "list list web web"
-                "list list web web";
-        }
-
-        .search {
-            grid-area: search;
-        }
-
-        .tracking {
-            grid-area: tracking;
-        }
-
-        .web {
-            grid-area: web;
-        }
-
-        .list {
-            grid-area: list;
-            margin: auto;
-			width: 90%;
-			height: 450px;
-			overflow: auto;
-        }
-
-        body {
-            font: 14px sans-serif;
-            text-align: center;
-            background-image: url(wp.jpg);
-            background-color: #cccccc;
-        }
-
-        table.tbl {
-            background: rgba(255, 255, 255, 0.9);
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ePrivacy Observatory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -76,31 +32,50 @@ $result = mysqli_query($link, $sql);
             </form>
         </div>
         <div class="tracking">
-            hello tracking</div>
+
+
+        </div>
         <div class="web">
             hello web </div>
         <div class="list">
-            <table class="tbl w3-table w3-striped w3-large w3-centered">
-                <tr>
-                    <th>#</th>
-                    <th>Domain</th>
-                    <th>Intrusion Level</th>
-                </tr>
-                <?php
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<tr>";
-                    echo "<td> {$row['alexa_rank']} </td>";
-                    echo "<td> <a href=\"domain.php?domain_url={$row['name']}\">{$row['name']}</a></td>";
-                    echo "<td> {$row['update_timestamp']} </td>";
-                    echo "</tr>";
-                }
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Top Intruder</button>
+                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Top Popular</button>
+                    <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Top ?</button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                    <table class="table table-striped table-hover">
+                        <tr>
+                            <th>#</th>
+                            <th>Domain</th>
+                            <th>Intrusion Level</th>
+                        </tr>
+                        <?php
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            echo "<tr>";
+                            echo "<td> {$row['alexa_rank']} </td>";
+                            echo "<td> <a href=\"domain.php?domain_url={$row['name']}\">{$row['name']}</a></td>";
+                            echo "<td> {$row['update_timestamp']} </td>";
+                            echo "</tr>";
+                        }
 
-                mysqli_free_result($result);
+                        mysqli_free_result($result);
 
-                mysqli_close($link);
-                ?>
-            </table>
+                        mysqli_close($link);
+                        ?>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>
+                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
+            </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
 </body>
+
 </html>
