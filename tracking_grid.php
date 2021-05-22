@@ -3,6 +3,6 @@
 
 $domain = trim($_POST['domain_url']);
 
-echo "$domain";
+echo "Aquí va el tracking de $domain";
 
 ?>

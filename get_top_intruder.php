@@ -15,11 +15,11 @@ echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Intrusion Lev
 echo "<th style=\"background: #557bce;position: sticky;top: 0px;\"> </th>";
 echo "</tr>";
 while ($row = mysqli_fetch_assoc($result)) {
-    echo "<tr>";
+    echo "<tr id = {$row['name']} onclick=\"updateTrackingGrid(this.id)\">";
     echo "<td> {$row['alexa_rank']} </td>";
-    echo "<td> <a href=\"domain.php?domain_url={$row['name']}\">{$row['name']}</a></td>";
+    echo "<td> {$row['name']}</td>";
     echo "<td> {$row['update_timestamp']} </td>";
-    echo "<td><i class=\"far fa-plus-square\"></i> </td>";
+    echo "<td> <a href=\"domain.php?domain_url={$row['name']}\"><i class=\"far fa-plus-square\"></i></a></td>";
     echo "</tr>";
 }
 

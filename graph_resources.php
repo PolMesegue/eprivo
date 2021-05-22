@@ -1,5 +1,5 @@
 <?php
-
+require_once "config.php";
 $domain = trim($_GET["domain_url"]);
 
 			$sql="SELECT url.id, url.url, url.type, url.country_code, url.is_EU ,url.resource_id FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ?";
