@@ -4,15 +4,15 @@
 require_once "config.php";
 
 
-$sql = "select alexa_rank, name, update_timestamp from domain where id <= 10";
+$sql = "select alexa_rank, name, update_timestamp from domain where id <= 20";
 $result = mysqli_query($link, $sql);
 
-echo "<table class=\"table table-striped table-hover text-center\">";
+echo "<table class=\"table table-hover text-center\">";
 echo "<tr>";
-echo "<th>#</th>";
-echo "<th>Domain</th>";
-echo "<th>Intrusion Level</th>";
-echo "<th> </th>";
+echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">#</th>";
+echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Domain</th>";
+echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Intrusion Level</th>";
+echo "<th style=\"background: #557bce;position: sticky;top: 0px;\"> </th>";
 echo "</tr>";
 while ($row = mysqli_fetch_assoc($result)) {
     echo "<tr>";
