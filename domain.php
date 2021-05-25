@@ -28,8 +28,6 @@
             </div>
         </div>
         <div class="tracking">
-
-
         </div>
         <div class="web">
         </div>
@@ -70,13 +68,14 @@
 
         function showMap() {
             var xhttp = new XMLHttpRequest();
+            var str = "<?php echo trim($_GET["domain_url"]); ?>";
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     document.getElementById("nav-map").innerHTML =
                         this.responseText;
                 }
             };
-            xhttp.open("GET", "map_resources.php", true);
+            xhttp.open("GET", "map_resources.php?domain_url="+str, true);
             xhttp.send();
         }
     </script>
