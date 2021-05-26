@@ -9,7 +9,7 @@ $result = mysqli_query($link, $sql);
 
 echo "<table class=\"table table-hover text-center\">";
 echo "<tr>";
-echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">#</th>";
+echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Alexa Rank</th>";
 echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Domain</th>";
 echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Intrusion Level</th>";
 echo "<th style=\"background: #557bce;position: sticky;top: 0px;\"> </th>";

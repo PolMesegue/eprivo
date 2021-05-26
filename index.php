@@ -27,10 +27,10 @@
                 </div>
             </div>
         </div>
-        <div class="tracking">
+        <div class="tracking wrappertrack">
             <div id="tracking-grid"></div>
         </div>
-        <div class="web">
+        <div class="web wrapperweb">
         <div id="web-grid"></div>
         </div>
         <div class="list">
@@ -46,7 +46,8 @@
                 <div class="tab-pane fade" id="nav-popular" role="tabpanel" aria-labelledby="nav-popular-tab"></div>
                 <div class="tab-pane fade" id="nav-3rdp" role="tabpanel" aria-labelledby="nav-3rdp-tab"></div>
             </div>
-        </div>
+        </div>  
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>

@@ -16,9 +16,8 @@
 .tracking {
     grid-area: tracking;
     margin-left: 20px;
-    margin-right: auto;
+    margin-bottom: 0px;
     width: 90%;
-    height: 250px;
     overflow: auto;
 }
 
@@ -26,8 +25,8 @@
     grid-area: web;
     margin-left: 20px;
     margin-right: auto;
+    margin-top: 0px;;
     width: 90%;
-    height: 350px;
     overflow: auto;
 }
 
@@ -39,6 +38,7 @@
     /*  height: 450px;*/
     overflow: auto;
 }
+
 
 .padding {
     padding: 1rem !important
@@ -96,6 +96,18 @@
     border: 1px solid #ddd;
     width: 100%;
     height: 500px;
+    overflow-y: auto;
+}
+.wrappertrack {
+    border: 1px solid #ddd; 
+    height: 255px;
+    overflow-y: auto;
+}
+
+
+.wrapperweb {
+    border: 1px solid #ddd;
+    height: 270px;
     overflow-y: auto;
 }
 
