@@ -8,9 +8,7 @@
 
 .search {
     grid-area: search;
-
     height: 100px;
-
 }
 
 .tracking {
@@ -25,7 +23,8 @@
     grid-area: web;
     margin-left: 20px;
     margin-right: auto;
-    margin-top: 0px;;
+    margin-top: 0px;
+    ;
     width: 90%;
     overflow: auto;
 }
@@ -33,12 +32,10 @@
 .list {
     grid-area: list;
     margin-left: auto;
-
     width: 90%;
     /*  height: 450px;*/
     overflow: auto;
 }
-
 
 .padding {
     padding: 1rem !important
@@ -98,12 +95,12 @@
     height: 500px;
     overflow-y: auto;
 }
+
 .wrappertrack {
-    border: 1px solid #ddd; 
+    border: 1px solid #ddd;
     height: 255px;
     overflow-y: auto;
 }
-
 
 .wrapperweb {
     border: 1px solid #ddd;
@@ -118,6 +115,7 @@
 }
 
 /* Tooltip CSS */
+
 .d3-tip {
     line-height: 1.5;
     font-weight: 400;
@@ -130,6 +128,7 @@
 }
 
 /* Creates a small triangle extender for the tooltip */
+
 .d3-tip:after {
     box-sizing: border-box;
     display: inline;
@@ -139,10 +138,10 @@
     color: rgba(0, 0, 0, 0.6);
     position: absolute;
     pointer-events: none;
-
 }
 
 /* Northward tooltips */
+
 .d3-tip.n:after {
     content: "\25BC";
     margin: -1px 0 0 0;
@@ -152,6 +151,7 @@
 }
 
 /* Eastward tooltips */
+
 .d3-tip.e:after {
     content: "\25C0";
     margin: -4px 0 0 0;
@@ -160,6 +160,7 @@
 }
 
 /* Southward tooltips */
+
 .d3-tip.s:after {
     content: "\25B2";
     margin: 0 0 1px 0;
@@ -169,6 +170,7 @@
 }
 
 /* Westward tooltips */
+
 .d3-tip.w:after {
     content: "\25B6";
     margin: -4px 0 0 -1px;
@@ -184,3 +186,12 @@
     color: white;
 }
 
+.links line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+.nodes circle {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
