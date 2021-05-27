@@ -94,7 +94,7 @@ mysqli_close($link);
 
 </head>
 
-<body>
+<body onload="updateTrackingGrid('<?php echo $domain; ?>')">
     <div class="grid-container">
         <div class="search">
             <div class="row justify-content-center padding">
@@ -109,9 +109,29 @@ mysqli_close($link);
                 </div>
             </div>
         </div>
-        <div class="tracking">
+        <div class="tracking wrappertrack">
+            <div id="tracking-grid"></div>
         </div>
-        <div class="web">
+        <div class="web wrapperweb">
+            <div id="web-grid">
+
+                <table class="table table-hover">
+                    <tr>
+                        <td>Security State</td>
+                        <td id = "ss" style = "text-align: left;"></td>
+                    </tr>
+                    <tr>
+                        <td>IP Address</td>
+                        <td id  = "ipadd" style = "text-align: left;"></td>
+                    </tr>
+                    <tr>
+                        <td>Mime Type</td>
+                        <td id = "mimetype" style = "text-align: left;"></td>
+                    </tr>
+                </table>
+
+
+            </div>
         </div>
         <div class="list">
             <nav>
@@ -127,11 +147,11 @@ mysqli_close($link);
                     <svg id="svggraph" width="960" height="600"></svg>
 
                     <script>
-                        var svg = d3.select("#svggraph"),
-                            width = +svg.attr("width"),
-                            height = +svg.attr("height");
+                        var svggraph = d3.select("#svggraph"),
+                            width = +svggraph.attr("width"),
+                            height = +svggraph.attr("height");
 
-                        var color = d3.scaleOrdinal(d3.schemeCategory20);
+                        var colorgraph = d3.scaleOrdinal(d3.schemeCategory20);
 
 
                         var simulation = d3.forceSimulation()
@@ -139,12 +159,12 @@ mysqli_close($link);
                                 return d.id;
                             }))
                             .force("charge", d3.forceManyBody().distanceMax(200))
-                            .force("center", d3.forceCenter(width / 2, height / 2));
+                            .force("center", d3.forceCenter(width / 3, height / 2));
 
                         d3.json(<?php echo "\"/data" . $piecesGraph[1] . "\""; ?>, function(error, graph) {
                             if (error) throw error;
 
-                            var link = svg.append("g")
+                            var link = svggraph.append("g")
                                 .attr("class", "links")
                                 .selectAll("line")
                                 .data(graph.links)
@@ -153,7 +173,7 @@ mysqli_close($link);
                                     return Math.sqrt(2);
                                 });
 
-                            var node = svg.append("g")
+                            var node = svggraph.append("g")
                                 .attr("class", "nodes")
                                 .selectAll("g")
                                 .data(graph.nodes)
@@ -162,7 +182,7 @@ mysqli_close($link);
                             var circles = node.append("circle")
                                 .attr("r", 5)
                                 .attr("fill", function(d) {
-                                    return color(d.type);
+                                    return colorgraph(d.type);
                                 })
                                 .call(d3.drag()
                                     .on("start", dragstarted)
@@ -207,7 +227,10 @@ mysqli_close($link);
                             if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                             d.fx = d.x;
                             d.fy = d.y;
-                            alert(d.mime);
+                            document.getElementById("ss").innerHTML = d.state;
+                            document.getElementById("ipadd").innerHTML = d.ip;
+                            document.getElementById("mimetype").innerHTML = d.mime;
+
 
                         }
 
@@ -342,23 +365,25 @@ mysqli_close($link);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
-    <!--
+
     <script>
-        function showGraph() {
-            var xhttp = new XMLHttpRequest();
-            var str = "<?php echo trim($_GET["domain_url"]); ?>";
+        function updateTrackingGrid(str) {
+            var xhttp;
+            if (str == "") {
+                document.getElementById("txtHint").innerHTML = "";
+                return;
+            }
+            xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("svggraph").innerHTML =
-                        this.responseText;
+                    document.getElementById("tracking-grid").innerHTML = this.responseText;
                 }
             };
-            xhttp.open("GET", "graph.php?domain_url=" + str, true);
-            xhttp.send();
+            xhttp.open("POST", "tracking_grid.php", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("domain_url=" + str);
         }
-    </script> -->
-
-
+    </script>
 
 </body>
 
