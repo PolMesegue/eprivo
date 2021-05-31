@@ -1,10 +1,13 @@
 .grid-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
     gap: 0px 0px;
-    grid-template-areas: "search search search search" "list list tracking tracking" "list list tracking tracking" "list list web web" "list list web web";
+    grid-template-areas: "back search search search search search search about" "list list list list tracking tracking tracking tracking" "list list list list tracking tracking tracking tracking" "list list list list web web web web" "list list list list web web web web";
 }
+
+.about { grid-area: about; }
+.back { grid-area: back; }
 
 .search {
     grid-area: search;
@@ -24,7 +27,6 @@
     margin-left: 20px;
     margin-right: auto;
     margin-top: 0px;
-    ;
     width: 90%;
     overflow: auto;
 }

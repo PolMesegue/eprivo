@@ -12,26 +12,29 @@
 
 </head>
 
-<body onload="showTableIntruder()">
+<body onload="showTableIntruder(), updateTrackingGrid('google.com'), updateWebGrid('google.com')">
     <div class="grid-container">
+        
+        <div class="back"><button type="button" class="btn btn-primary">Home</button></div>
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
                     <form action="domain.php" class="domain-form">
-                        <div class="form-group d-md-flex"> 
-                        <input type="text" id="domain_url" name="domain_url" class="form-control px-4" placeholder="Insert domain here..."> 
-                        <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain">
+                        <div class="form-group d-md-flex">
+                            <input type="text" id="domain_url" name="domain_url" class="form-control px-4" placeholder="Insert domain here...">
+                            <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain">
                         </div>
                     </form>
                     <!--  <p class="domain-price text-center"><span><small>.com</small>10.75</span> <span><small>.net</small>19.90</span> <span><small>.biz</small>$5.95</span> <span><small>.gov</small>$3.95</span></p> -->
                 </div>
             </div>
         </div>
+        <div class="about"><button type="button" class="btn btn-primary">About</button></div>
         <div class="tracking wrappertrack">
             <div id="tracking-grid"></div>
         </div>
         <div class="web wrapperweb">
-        <div id="web-grid"></div>
+            <div id="web-grid"></div>
         </div>
         <div class="list">
             <nav>
@@ -46,7 +49,8 @@
                 <div class="tab-pane fade" id="nav-popular" role="tabpanel" aria-labelledby="nav-popular-tab"></div>
                 <div class="tab-pane fade" id="nav-3rdp" role="tabpanel" aria-labelledby="nav-3rdp-tab"></div>
             </div>
-        </div>  
+        </div>
+
 
     </div>
 
@@ -103,7 +107,7 @@
             };
             xhttp.open("POST", "tracking_grid.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.send("domain_url="+str);
+            xhttp.send("domain_url=" + str);
         }
 
         function updateWebGrid(str) {
@@ -120,7 +124,7 @@
             };
             xhttp.open("POST", "web_grid.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.send("domain_url="+str);
+            xhttp.send("domain_url=" + str);
         }
     </script>
 

@@ -15,7 +15,7 @@ echo "<th style=\"background: #557bce;position: sticky;top: 0px;\">Intrusion Lev
 echo "<th style=\"background: #557bce;position: sticky;top: 0px;\"> </th>";
 echo "</tr>";
 while ($row = mysqli_fetch_assoc($result)) {
-    echo "<tr id = {$row['name']} onclick=\"updateWebGrid(this.id);\">";
+    echo "<tr id = {$row['name']} onclick=\"updateTrackingGrid(this.id); updateWebGrid(this.id);\">";
     echo "<td> {$row['alexa_rank']} </td>";
     echo "<td> {$row['name']}</td>";
     echo "<td> {$row['update_timestamp']} </td>";

@@ -43,6 +43,8 @@ $itn = 0;
 $itl = 0;
 
 $typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
+$trackingtocolor = [];
+
 
 $sql = "SELECT url.id, domain_url.initiator_frame, url.type, mime_type.name, url.server_ip, url.security_info FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id JOIN mime_type ON url.mime_type_id = mime_type.id WHERE domain.name = ? and url.server_ip IS NOT NULL";
 
@@ -96,6 +98,7 @@ mysqli_close($link);
 
 <body onload="updateTrackingGrid('<?php echo $domain; ?>')">
     <div class="grid-container">
+        <div class="back"><a href='index.php'><button type="button" class="btn btn-primary">Home</button></a></div>
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
@@ -109,28 +112,12 @@ mysqli_close($link);
                 </div>
             </div>
         </div>
+        <div class="about"><button type="button" class="btn btn-primary">About</button></div>
         <div class="tracking wrappertrack">
             <div id="tracking-grid"></div>
         </div>
         <div class="web wrapperweb">
             <div id="web-grid">
-
-                <table class="table table-hover">
-                    <tr>
-                        <td>Security State</td>
-                        <td id = "ss" style = "text-align: left;"></td>
-                    </tr>
-                    <tr>
-                        <td>IP Address</td>
-                        <td id  = "ipadd" style = "text-align: left;"></td>
-                    </tr>
-                    <tr>
-                        <td>Mime Type</td>
-                        <td id = "mimetype" style = "text-align: left;"></td>
-                    </tr>
-                </table>
-
-
             </div>
         </div>
         <div class="list">
@@ -227,9 +214,31 @@ mysqli_close($link);
                             if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                             d.fx = d.x;
                             d.fy = d.y;
+
+
+                            var xhttp;
+
+                            xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {
+                                if (this.readyState == 4 && this.status == 200) {
+                                    document.getElementById("idnode").innerHTML = this.responseText;
+                                }
+                               
+                            };
+                            xhttp.open("POST", "update_node.php", true);
+                            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                            xhttp.send("url_id=" + d.id);
+
+                           // document.getElementById("idnode").innerHTML = d.id;
                             document.getElementById("ss").innerHTML = d.state;
                             document.getElementById("ipadd").innerHTML = d.ip;
                             document.getElementById("mimetype").innerHTML = d.mime;
+
+
+
+
+
+
 
 
                         }
@@ -357,7 +366,7 @@ mysqli_close($link);
                                 .attr("d", path);
                         }
                     </script>
-                    -->
+
                 </div>
             </div>
         </div>
@@ -383,6 +392,21 @@ mysqli_close($link);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("domain_url=" + str);
         }
+
+        /*
+                function showNodeInfo(int) {
+                    var xhttp;
+
+                    xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            document.getElementById("idnode").innerHTML = this.responseText;
+                        }
+                    };
+                    xhttp.open("GET", "update_node.php", true);
+                    //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.send("url_id=" + int);
+                } */
     </script>
 
 </body>
