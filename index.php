@@ -15,36 +15,6 @@
 
 </head>
 
-<style>
-    .bar {
-        fill: #3361ff;
-    }
-
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #D4D8DA;
-        stroke-width: 1px;
-        shape-rendering: crispEdges;
-    }
-
-    .x path {
-        display: none;
-    }
-
-    .tooltip {
-        position: absolute;
-        display: none;
-        min-width: 80px;
-        height: auto;
-        background: none repeat scroll 0 0 #ffffff;
-        border: 1px solid #6F257F;
-        padding: 14px;
-        text-align: center;
-    }
-</style>
-
-
 
 <body onload="showTableIntruder(), updateTrackingGrid('google.com'), updateWebGrid('google.com')">
     <div class="grid-container">
@@ -157,7 +127,7 @@
                 var svg = d3.select("#svgtracking"),
                     margin = {
                         top: 20,
-                        right: 5,
+                        right: 0,
                         bottom: 30,
                         left: 150
                     },
