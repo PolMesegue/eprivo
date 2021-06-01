@@ -6,15 +6,49 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ePrivacy Observatory</title>
-    <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
     <script src="https://kit.fontawesome.com/682550c010.js" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="d3-tip.js"></script>
+
 
 </head>
 
+<style>
+    .bar {
+        fill: #3361ff;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #D4D8DA;
+        stroke-width: 1px;
+        shape-rendering: crispEdges;
+    }
+
+    .x path {
+        display: none;
+    }
+
+    .tooltip {
+        position: absolute;
+        display: none;
+        min-width: 80px;
+        height: auto;
+        background: none repeat scroll 0 0 #ffffff;
+        border: 1px solid #6F257F;
+        padding: 14px;
+        text-align: center;
+    }
+</style>
+
+
+
 <body onload="showTableIntruder(), updateTrackingGrid('google.com'), updateWebGrid('google.com')">
     <div class="grid-container">
-        
+
         <div class="back"><button type="button" class="btn btn-primary">Home</button></div>
         <div class="search">
             <div class="row justify-content-center padding">
@@ -25,13 +59,18 @@
                             <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain">
                         </div>
                     </form>
-                    <!--  <p class="domain-price text-center"><span><small>.com</small>10.75</span> <span><small>.net</small>19.90</span> <span><small>.biz</small>$5.95</span> <span><small>.gov</small>$3.95</span></p> -->
+
                 </div>
             </div>
         </div>
         <div class="about"><button type="button" class="btn btn-primary">About</button></div>
         <div class="tracking wrappertrack">
-            <div id="tracking-grid"></div>
+            <div id="tracking-grid">
+
+            <svg id="svgtracking"  width="600" height="255"></svg>
+
+
+            </div>
         </div>
         <div class="web wrapperweb">
             <div id="web-grid"></div>
@@ -53,6 +92,8 @@
 
 
     </div>
+
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
@@ -94,26 +135,104 @@
         }
 
         function updateTrackingGrid(str) {
-            var xhttp;
-            if (str == "") {
-                document.getElementById("txtHint").innerHTML = "";
-                return;
-            }
-            xhttp = new XMLHttpRequest();
+            var xhttp = new XMLHttpRequest();
+            var data_textjs;
+
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("tracking-grid").innerHTML = this.responseText;
+                    data_textjs = this.responseText;
                 }
             };
+
             xhttp.open("POST", "tracking_grid.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("domain_url=" + str);
+
+
+            setTimeout(function() {
+
+                data = JSON.parse(data_textjs);
+
+                d3.selectAll("g > *").remove()
+                var svg = d3.select("#svgtracking"),
+                    margin = {
+                        top: 20,
+                        right: 5,
+                        bottom: 30,
+                        left: 150
+                    },
+                    width = +svg.attr("width") - margin.left - margin.right,
+                    height = +svg.attr("height") - margin.top - margin.bottom;
+
+                var tip = d3.tip()
+                            .attr('class', 'd3-tip')
+                            .offset([-10, 0])
+                            .html(function(d) {
+                                return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
+                            })
+        
+                var x = d3.scaleLinear().range([0, width]);
+                var y = d3.scaleBand().range([height, 0]);
+
+                var g = svg.append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                svg.call(tip);
+                
+                data.sort(function(a, b) {
+                    return a.value - b.value;
+                });
+
+                x.domain([0, d3.max(data, function(d) {
+                    return d.value;
+                })]);
+                y.domain(data.map(function(d) {
+                    return d.area;
+                })).padding(0.1);
+
+                g.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(2).tickFormat(function(d) {
+                        return parseInt(d);
+                    }).tickSizeInner([-height]));
+
+                g.append("g")
+                    .attr("class", "y axis")
+                    .call(d3.axisLeft(y));
+
+                g.selectAll(".bar")
+                    .data(data)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", 0)
+                    .attr("height", y.bandwidth())
+                    .attr("y", function(d) {
+                        return y(d.area);
+                    })
+                    .attr("width", function(d) {
+                        return x(d.value);
+                    })
+                    .on("mousemove", function(d) {
+                        tip.show(d);
+                    })
+
+                    .on("mouseout", function(d) {
+                        tip.hide(d);
+                    });
+
+            }, 500);
         }
+
+
+
+
 
         function updateWebGrid(str) {
             var xhttp;
             if (str == "") {
-                document.getElementById("txtHint").innerHTML = "";
+                document.xhttp.send("domain_url=" + str);
+                getElementById("txtHint").innerHTML = "";
                 return;
             }
             xhttp = new XMLHttpRequest();
@@ -125,6 +244,7 @@
             xhttp.open("POST", "web_grid.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("domain_url=" + str);
+
         }
     </script>
 

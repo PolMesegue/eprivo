@@ -1,7 +1,7 @@
 <?php
 require_once "config.php";
 
-$domain = trim($_GET['domain_url']);
+$domain = trim($_POST['domain_url']);
 
 $sql = "select tracking.id, count(tracking.id), tracking.name from tracking JOIN url_tracking ON tracking.id = url_tracking.tracking_id JOIN url ON url.id = url_tracking.url_id JOIN domain_url ON domain_url.url_id = url.id JOIN domain ON domain.id = domain_url.domain_id WHERE domain.name = ? GROUP BY tracking.id";
 
