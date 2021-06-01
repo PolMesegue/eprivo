@@ -129,7 +129,7 @@
                         top: 20,
                         right: 0,
                         bottom: 30,
-                        left: 150
+                        left: 170
                     },
                     width = +svg.attr("width") - margin.left - margin.right,
                     height = +svg.attr("height") - margin.top - margin.bottom;
@@ -149,9 +149,9 @@
 
                 svg.call(tip);
                 
-                data.sort(function(a, b) {
+                /*data.sort(function(a, b) {
                     return a.value - b.value;
-                });
+                }); */
 
                 x.domain([0, d3.max(data, function(d) {
                     return d.value;
