@@ -1,0 +1,1 @@
+info aqui sobre de que va eprivo i ORM.

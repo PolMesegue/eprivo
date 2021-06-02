@@ -42,20 +42,25 @@ $links[] = [];
 $itn = 0;
 $itl = 0;
 
-$typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
+//$typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
+$trackingtocolor = ["0"=> 0, "1" => 1];
+/*
+$sql = "SELECT url.id, domain_url.initiator_frame, url.type, mime_type.name, url.server_ip, resource.is_tracking, tracking.name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id JOIN mime_type ON url.mime_type_id = mime_type.id LEFT JOIN resource ON url.resource_id = resource.id LEFT JOIN url_tracking ON url_tracking.url_id =
+url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? and url.server_ip IS NOT NULL";
+*/
 
-$sql = "SELECT url.id, domain_url.initiator_frame, url.type, mime_type.name, url.server_ip, url.security_info FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id JOIN mime_type ON url.mime_type_id = mime_type.id WHERE domain.name = ? and url.server_ip IS NOT NULL";
-
+$sql = "select url.id AS url_id, resource.id AS resource_id, tracking.id AS tracking_id, tracking.name AS tracking_name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? AND tracking.id IS NOT NULL UNION SELECT url.id, resource.id ,tracking.id, tracking.name AS tracking_name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN
+tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? AND tracking.id IS NOT NULL";
 if ($stmt = mysqli_prepare($link, $sql)) {
-    mysqli_stmt_bind_param($stmt, "s", $param_domain);
+    mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
 
     $param_domain = $domain;
 
     if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $mime_type, $server_ip, $security_info);
+        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $mime_type, $server_ip, $security_info, $is_tracking, $tracking_name);
         while (mysqli_stmt_fetch($stmt)) {
             $decoded_json = json_decode($security_info, true);
-            $nodes[$itn++] = ['id' => $id, 'type' => $typetocolor[$type], 'mime' => $mime_type, 'ip' => $server_ip, 'state' => $decoded_json["state"]];
+            $nodes[$itn++] = ['id' => $id, 'type' => $type, 'mime' => $mime_type, 'ip' => $server_ip, 'state' => $decoded_json["state"], 'is_tracking' => $trackingtocolor[$is_tracking], 'tracking_type' => $tracking_name];
             if ($initiator != null) {
                 $links[$itl++] = ['source' => $id, 'target' => $initiator];
             }
@@ -110,7 +115,7 @@ mysqli_close($link);
                 </div>
             </div>
         </div>
-        <div class="about"><button type="button" class="btn btn-primary">About</button></div>
+        <div class="about"> <a href="about.php"><button type="button" class="btn btn-primary">About</button></a></div>
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
 
@@ -128,8 +133,21 @@ mysqli_close($link);
                         <td id = "ss" style = "text-align: left;"></td>
                     </tr>
                     <tr>
+                        <td>Is Tracking</td>
+                        <td id = "istracking" style = "text-align: left;"></td>
+                    </tr>
+
+                    <tr>
+                        <td>Is Tracking</td>
+                        <td id = "tracking_type" style = "text-align: left;"></td>
+                    </tr>
+                    <tr>
                         <td>IP Address</td>
                         <td id  = "ipadd" style = "text-align: left;"></td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td id = "type" style = "text-align: left;"></td>
                     </tr>
                     <tr>
                         <td>Mime Type</td>
@@ -158,7 +176,7 @@ mysqli_close($link);
                             width = +svggraph.attr("width"),
                             height = +svggraph.attr("height");
 
-                        var colorgraph = d3.scaleOrdinal(d3.schemeCategory20);
+                        var colorgraph = d3.scaleOrdinal().range(["lightblue", "red"]);
 
 
                         var simulation = d3.forceSimulation()
@@ -189,7 +207,7 @@ mysqli_close($link);
                             var circles = node.append("circle")
                                 .attr("r", 5)
                                 .attr("fill", function(d) {
-                                    return colorgraph(d.type);
+                                    return colorgraph(d.is_tracking);
                                 })
                                 .call(d3.drag()
                                     .on("start", dragstarted)
@@ -237,6 +255,9 @@ mysqli_close($link);
                             document.getElementById("ss").innerHTML = d.state;
                             document.getElementById("ipadd").innerHTML = d.ip;
                             document.getElementById("mimetype").innerHTML = d.mime;
+                            document.getElementById("type").innerHTML = d.type;
+                            document.getElementById("istracking").innerHTML = d.is_tracking;
+                            document.getElementById("tracking_type").innerHTML = d.tracking_type;
                         }
 
                         function dragged(d) {
@@ -395,9 +416,9 @@ mysqli_close($link);
                 var svg = d3.select("#svgtracking"),
                     margin = {
                         top: 20,
-                        right: 5,
+                        right: 0,
                         bottom: 30,
-                        left: 150
+                        left: 170
                     },
                     width = +svg.attr("width") - margin.left - margin.right,
                     height = +svg.attr("height") - margin.top - margin.bottom;

@@ -19,7 +19,7 @@
 <body onload="showTableIntruder(), updateTrackingGrid('google.com'), updateWebGrid('google.com')">
     <div class="grid-container">
 
-        <div class="back"><button type="button" class="btn btn-primary">Home</button></div>
+    <div class="back"> <a href="index.php"> <button type="button" class="btn btn-primary">Home</button></a></div>
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div class="about"><button type="button" class="btn btn-primary">About</button></div>
+        <div class="about"> <a href="about.php"><button type="button" class="btn btn-primary">About</button></a></div>
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
 
