@@ -20,14 +20,11 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_bind_result($stmt, $id, $name, $count);
         while (mysqli_stmt_fetch($stmt)) {
-            foreach($data_text as $key => $value) { 
-                if($value["area"] == $name) {
+            foreach ($data_text as $key => $value) {
+                if ($value["area"] == $name) {
                     $data_text[$key]["value"] = $count;
-                   
                 }
-                
             }
-            
         }
     }
 
@@ -38,6 +35,3 @@ mysqli_close($link);
 
 //echo $data_text;
 echo json_encode($data_text);
-
-?>
-

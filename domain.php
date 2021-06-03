@@ -41,29 +41,91 @@ $nodes[] = [];
 $links[] = [];
 $itn = 0;
 $itl = 0;
+$tmp_id = -1;
+$typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
+$trackings = [];
 
-//$typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
-$trackingtocolor = ["0"=> 0, "1" => 1];
-/*
-$sql = "SELECT url.id, domain_url.initiator_frame, url.type, mime_type.name, url.server_ip, resource.is_tracking, tracking.name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id JOIN mime_type ON url.mime_type_id = mime_type.id LEFT JOIN resource ON url.resource_id = resource.id LEFT JOIN url_tracking ON url_tracking.url_id =
-url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? and url.server_ip IS NOT NULL";
-*/
+$sql = "select url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? UNION SELECT url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? ORDER BY id";
 
-$sql = "select url.id AS url_id, resource.id AS resource_id, tracking.id AS tracking_id, tracking.name AS tracking_name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? AND tracking.id IS NOT NULL UNION SELECT url.id, resource.id ,tracking.id, tracking.name AS tracking_name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN
-tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? AND tracking.id IS NOT NULL";
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
 
     $param_domain = $domain;
 
     if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $mime_type, $server_ip, $security_info, $is_tracking, $tracking_name);
+        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $server_ip, $security_info, $tracking_name);
         while (mysqli_stmt_fetch($stmt)) {
-            $decoded_json = json_decode($security_info, true);
-            $nodes[$itn++] = ['id' => $id, 'type' => $type, 'mime' => $mime_type, 'ip' => $server_ip, 'state' => $decoded_json["state"], 'is_tracking' => $trackingtocolor[$is_tracking], 'tracking_type' => $tracking_name];
-            if ($initiator != null) {
-                $links[$itl++] = ['source' => $id, 'target' => $initiator];
+
+            if ($tmp_id == $id) {
+                if (!is_null($tracking_name)) {
+                    $trackings[] = $tracking_name;
+                }
+            } elseif ($tmp_id == -1) {
+
+
+                $tmp_initiator = $initiator;
+
+                if (is_null($type)) {
+                    $tmp_type = "no-type";
+                } else {
+                    $tmp_type = $type;
+                }
+                if (is_null($server_ip)) {
+                    $tmp_server_ip = "no-ip";
+                } else {
+                    $tmp_server_ip = $server_ip;
+                }
+                if (is_null($security_info)) {
+                    $tmp_security_info = "no-security_info";
+                } else {
+                    $tmp_security_info = $security_info;
+                }
+                $tmp_id = $id;
+
+                if (!is_null($tracking_name)) {
+                    $trackings[] = $tracking_name;
+                }
+            } else {
+
+                $decoded_json = json_decode($tmp_security_info, true);
+                $count_trackings = (count($trackings) == 0) ? 0 : 1;
+                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+
+                if ($tmp_initiator != null) {
+                    $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
+                }
+
+
+                $tmp_initiator = $initiator;
+
+                if (is_null($type)) {
+                    $tmp_type = "no-type";
+                } else {
+                    $tmp_type = $type;
+                }
+                if (is_null($server_ip)) {
+                    $tmp_server_ip = "no-ip";
+                } else {
+                    $tmp_server_ip = $server_ip;
+                }
+                if (is_null($security_info)) {
+                    $tmp_security_info = "no-security_info";
+                } else {
+                    $tmp_security_info = $security_info;
+                }
+                $tmp_id = $id;
+                $trackings = [];
+                if (!is_null($tracking_name)) {
+                    $trackings[] = $tracking_name;
+                }
             }
+        }
+
+        $decoded_json = json_decode($tmp_security_info, true);
+        $nodes[$itn++] = ['id' => $tmp_id, 'type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+
+        if ($tmp_initiator != null) {
+            $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
         }
     }
 
@@ -101,7 +163,7 @@ mysqli_close($link);
 
 <body onload="updateTrackingGrid('<?php echo $domain; ?>')">
     <div class="grid-container">
-    <div class="back"> <a href="index.php"> <button type="button" class="btn btn-primary">Home</button></a></div>
+        <div class="back"> <a href="index.php"> <button type="button" class="btn btn-primary">Home</button></a></div>
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
@@ -119,7 +181,7 @@ mysqli_close($link);
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
 
-            <svg id="svgtracking"  width="600" height="255"></svg>
+                <svg id="svgtracking" width="600" height="255"></svg>
 
 
             </div>
@@ -130,28 +192,20 @@ mysqli_close($link);
                 <table class="table table-hover">
                     <tr>
                         <td>Security State</td>
-                        <td id = "ss" style = "text-align: left;"></td>
-                    </tr>
-                    <tr>
-                        <td>Is Tracking</td>
-                        <td id = "istracking" style = "text-align: left;"></td>
+                        <td id="ss" style="text-align: left;"></td>
                     </tr>
 
                     <tr>
                         <td>Is Tracking</td>
-                        <td id = "tracking_type" style = "text-align: left;"></td>
+                        <td id="tracking_type" style="text-align: left;"></td>
                     </tr>
                     <tr>
                         <td>IP Address</td>
-                        <td id  = "ipadd" style = "text-align: left;"></td>
+                        <td id="ipadd" style="text-align: left;"></td>
                     </tr>
                     <tr>
                         <td>Type</td>
-                        <td id = "type" style = "text-align: left;"></td>
-                    </tr>
-                    <tr>
-                        <td>Mime Type</td>
-                        <td id = "mimetype" style = "text-align: left;"></td>
+                        <td id="type" style="text-align: left;"></td>
                     </tr>
                 </table>
 
@@ -176,7 +230,8 @@ mysqli_close($link);
                             width = +svggraph.attr("width"),
                             height = +svggraph.attr("height");
 
-                        var colorgraph = d3.scaleOrdinal().range(["lightblue", "red"]);
+                       // var colorgraph = d3.scaleOrdinal(d3.schemeCategory20);
+                        var colorgraph = d3.scaleOrdinal().domain([0,1]).range(["blue", "red"]);
 
 
                         var simulation = d3.forceSimulation()
@@ -252,11 +307,11 @@ mysqli_close($link);
                             if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                             d.fx = d.x;
                             d.fy = d.y;
-                            document.getElementById("ss").innerHTML = d.state;
+                            // document.getElementById("ss").innerHTML = d.state;
                             document.getElementById("ipadd").innerHTML = d.ip;
-                            document.getElementById("mimetype").innerHTML = d.mime;
+                            //   document.getElementById("mimetype").innerHTML = d.mime;
                             document.getElementById("type").innerHTML = d.type;
-                            document.getElementById("istracking").innerHTML = d.is_tracking;
+                            // document.getElementById("istracking").innerHTML = d.is_tracking;
                             document.getElementById("tracking_type").innerHTML = d.tracking_type;
                         }
 
@@ -378,12 +433,11 @@ mysqli_close($link);
                                 .datum(topojson.mesh(data.features, function(a, b) {
                                     return a.id !== b.id;
                                 }))
-                                // .datum(topojson.mesh(data.features, function(a, b) { return a !== b; }))
                                 .attr("class", "names")
                                 .attr("d", path);
                         }
                     </script>
-                    
+
                 </div>
             </div>
         </div>
@@ -412,7 +466,7 @@ mysqli_close($link);
 
                 data = JSON.parse(data_textjs);
 
-                //d3.selectAll("g > *").remove()
+                
                 var svg = d3.select("#svgtracking"),
                     margin = {
                         top: 20,
@@ -424,12 +478,12 @@ mysqli_close($link);
                     height = +svg.attr("height") - margin.top - margin.bottom;
 
                 var tip = d3.tip()
-                            .attr('class', 'd3-tip')
-                            .offset([-10, 0])
-                            .html(function(d) {
-                                return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
-                            })
-        
+                    .attr('class', 'd3-tip')
+                    .offset([-10, 0])
+                    .html(function(d) {
+                        return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
+                    })
+
                 var x = d3.scaleLinear().range([0, width]);
                 var y = d3.scaleBand().range([height, 0]);
 
@@ -437,7 +491,7 @@ mysqli_close($link);
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 svg.call(tip);
-                
+
                 data.sort(function(a, b) {
                     return a.value - b.value;
                 });
@@ -482,7 +536,6 @@ mysqli_close($link);
 
             }, 500);
         }
-        
     </script>
 
 </body>
