@@ -58,7 +58,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
             if ($tmp_id == $id) {
                 if (!is_null($tracking_name)) {
-                    $trackings[] = $tracking_name;
+                    $trackings[] = " $tracking_name";
                 }
             } elseif ($tmp_id == -1) {
 
@@ -83,13 +83,16 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 $tmp_id = $id;
 
                 if (!is_null($tracking_name)) {
-                    $trackings[] = $tracking_name;
+                    $trackings[] = " $tracking_name";
                 }
             } else {
 
                 $decoded_json = json_decode($tmp_security_info, true);
                 $count_trackings = (count($trackings) == 0) ? 0 : 1;
-                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+                if ($count_trackings == 0) {
+                    $trackings[] = "Not-Tracking";
+                }
+                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
 
                 if ($tmp_initiator != null) {
                     $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -116,13 +119,13 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 $tmp_id = $id;
                 $trackings = [];
                 if (!is_null($tracking_name)) {
-                    $trackings[] = $tracking_name;
+                    $trackings[] = " $tracking_name";
                 }
             }
         }
 
         $decoded_json = json_decode($tmp_security_info, true);
-        $nodes[$itn++] = ['id' => $tmp_id, 'type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+        $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
 
         if ($tmp_initiator != null) {
             $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -158,10 +161,11 @@ mysqli_close($link);
     <script src="https://d3js.org/queue.v1.min.js"></script>
     <script src="https://d3js.org/topojson.v1.min.js"></script>
     <script src="d3-tip.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 </head>
 
-<body onload="updateTrackingGrid('<?php echo $domain; ?>')">
+<body onload="updateTrackingGrid('<?php echo $domain; ?>'), reloadGraph('is_tracking')">
     <div class="grid-container">
         <div class="back"> <a href="index.php"> <button type="button" class="btn btn-primary">Home</button></a></div>
         <div class="search">
@@ -191,22 +195,25 @@ mysqli_close($link);
 
                 <table class="table table-hover">
                     <tr>
+                        <td>Type</td>
+                        <td id="type" style="text-align: left;"></td>
+                    </tr>
+
+                    <tr>
+                        <td>Tracking</td>
+                        <td id="tracking_type" style="text-align: left;"></td>
+                    </tr>
+
+                    <tr>
                         <td>Security State</td>
                         <td id="ss" style="text-align: left;"></td>
                     </tr>
 
                     <tr>
-                        <td>Is Tracking</td>
-                        <td id="tracking_type" style="text-align: left;"></td>
-                    </tr>
-                    <tr>
                         <td>IP Address</td>
                         <td id="ipadd" style="text-align: left;"></td>
                     </tr>
-                    <tr>
-                        <td>Type</td>
-                        <td id="type" style="text-align: left;"></td>
-                    </tr>
+
                 </table>
 
 
@@ -215,7 +222,7 @@ mysqli_close($link);
         <div class="list">
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true" onclick="showGraph()">Resources</button>
+                    <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true">Resources</button>
                     <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false">Map</button>
 
                 </div>
@@ -223,111 +230,20 @@ mysqli_close($link);
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-graph" role="tabpanel" aria-labelledby="nav-graph-tab">
 
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                            Color By:
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                            <li><button class="dropdown-item" type="button" onclick="reloadGraph('is_tracking')">Is Tracking</button></li>
+                            <li><button class="dropdown-item" type="button" onclick="reloadGraph('type')">Type</button></li>
+
+                        </ul>
+                    </div>
+
                     <svg id="svggraph" width="960" height="600"></svg>
 
-                    <script>
-                        var svggraph = d3.select("#svggraph"),
-                            width = +svggraph.attr("width"),
-                            height = +svggraph.attr("height");
-
-                       // var colorgraph = d3.scaleOrdinal(d3.schemeCategory20);
-                        var colorgraph = d3.scaleOrdinal().domain([0,1]).range(["blue", "red"]);
-
-
-                        var simulation = d3.forceSimulation()
-                            .force("link", d3.forceLink().id(function(d) {
-                                return d.id;
-                            }))
-                            .force("charge", d3.forceManyBody().distanceMax(200))
-                            .force("center", d3.forceCenter(width / 3, height / 2));
-
-                        d3.json(<?php echo "\"/data" . $piecesGraph[1] . "\""; ?>, function(error, graph) {
-                            if (error) throw error;
-
-                            var link = svggraph.append("g")
-                                .attr("class", "links")
-                                .selectAll("line")
-                                .data(graph.links)
-                                .enter().append("line")
-                                .attr("stroke-width", function(d) {
-                                    return Math.sqrt(2);
-                                });
-
-                            var node = svggraph.append("g")
-                                .attr("class", "nodes")
-                                .selectAll("g")
-                                .data(graph.nodes)
-                                .enter().append("g")
-
-                            var circles = node.append("circle")
-                                .attr("r", 5)
-                                .attr("fill", function(d) {
-                                    return colorgraph(d.is_tracking);
-                                })
-                                .call(d3.drag()
-                                    .on("start", dragstarted)
-                                    .on("drag", dragged)
-                                    .on("end", dragended));
-
-                            node.append("title")
-                                .text(function(d) {
-                                    return d.id;
-                                });
-
-                            simulation
-                                .nodes(graph.nodes)
-                                .on("tick", ticked);
-
-                            simulation.force("link")
-                                .links(graph.links);
-
-                            function ticked() {
-                                link
-                                    .attr("x1", function(d) {
-                                        return d.source.x;
-                                    })
-                                    .attr("y1", function(d) {
-                                        return d.source.y;
-                                    })
-                                    .attr("x2", function(d) {
-                                        return d.target.x;
-                                    })
-                                    .attr("y2", function(d) {
-                                        return d.target.y;
-                                    });
-
-                                node
-                                    .attr("transform", function(d) {
-                                        return "translate(" + d.x + "," + d.y + ")";
-                                    })
-                            }
-                        });
-
-                        function dragstarted(d) {
-                            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-                            d.fx = d.x;
-                            d.fy = d.y;
-                            // document.getElementById("ss").innerHTML = d.state;
-                            document.getElementById("ipadd").innerHTML = d.ip;
-                            //   document.getElementById("mimetype").innerHTML = d.mime;
-                            document.getElementById("type").innerHTML = d.type;
-                            // document.getElementById("istracking").innerHTML = d.is_tracking;
-                            document.getElementById("tracking_type").innerHTML = d.tracking_type;
-                        }
-
-                        function dragged(d) {
-                            d.fx = d3.event.x;
-                            d.fy = d3.event.y;
-
-
-                        }
-
-                        function dragended(d) {
-                            if (!d3.event.active) simulation.alphaTarget(0);
-                            d.fx = null;
-                            d.fy = null;
-                        }
-                    </script>
+                   
 
 
                 </div>
@@ -443,9 +359,6 @@ mysqli_close($link);
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
-
-
     <script>
         function updateTrackingGrid(str) {
             var xhttp = new XMLHttpRequest();
@@ -466,7 +379,7 @@ mysqli_close($link);
 
                 data = JSON.parse(data_textjs);
 
-                
+
                 var svg = d3.select("#svgtracking"),
                     margin = {
                         top: 20,
@@ -537,6 +450,216 @@ mysqli_close($link);
             }, 500);
         }
     </script>
+
+    <script>
+        function reloadGraph(str) {
+
+            d3.selectAll("#svggraph > *").remove();
+
+            var svggraph = d3.select("#svggraph"),
+                width = +svggraph.attr("width"),
+                height = +svggraph.attr("height");
+
+            // var colorgraph = d3.scaleOrdinal(d3.schemeCategory20);
+
+
+            var simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(function(d) {
+                    return d.id;
+                }))
+                .force("charge", d3.forceManyBody().distanceMax(200))
+                .force("center", d3.forceCenter(width / 3, height / 2));
+
+            d3.json(<?php echo "\"/data" . $piecesGraph[1] . "\""; ?>, function(error, graph) {
+                if (error) throw error;
+
+                var link = svggraph.append("g")
+                    .attr("class", "links")
+                    .selectAll("line")
+                    .data(graph.links)
+                    .enter().append("line")
+                    .attr("stroke-width", function(d) {
+                        return Math.sqrt(2);
+                    });
+
+                var node = svggraph.append("g")
+                    .attr("class", "nodes")
+                    .selectAll("g")
+                    .data(graph.nodes)
+                    .enter().append("g")
+
+                if (str == 'type') {
+
+
+                    var svglegend = d3.select("#svggraph")
+
+                    // create a list of keys
+                    var keys = ["main frame", "image", "stylesheet", "beacon", "script", "font", "xmlhttprequest", "websocket", "sub_frame", "object", "media", "other", "csp_report"];
+
+                    // Usually you have a color scale in your chart already
+                    var color = d3.scaleOrdinal()
+                        .domain(keys)
+                        .range(d3.schemeCategory20);
+
+                    // Add one dot in the legend for each name.
+                    svglegend.selectAll("mydots")
+                        .data(keys)
+                        .enter()
+                        .append("circle")
+                        .attr("cy", 30)
+                        .attr("cx", function(d, i) {
+                            return 30 + i * 150
+                        }) // 100 is where the first dot appears. 25 is the distance between dots
+                        .attr("r", 7)
+                        .style("fill", function(d) {
+                            return color(d)
+                        })
+
+                    // Add one dot in the legend for each name.
+                    svglegend.selectAll("mylabels")
+                        .data(keys)
+                        .enter()
+                        .append("text")
+                        .attr("y", 35)
+                        .attr("x", function(d, i) {
+                            return 40 + i * 150
+                        }) // 100 is where the first dot appears. 25 is the distance between dots
+                        .style("fill", function(d) {
+                            return color(d)
+                        })
+                        .text(function(d) {
+                            return d
+                        })
+                        .attr("text-anchor", "left")
+                        .style("alignment-baseline", "middle");
+
+                    var circles = node.append("circle")
+                        .attr("r", 5)
+                        .attr("fill", function(d) {
+                            return color(d.type);
+                        })
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended));
+                } else {
+
+
+                    var svglegend = d3.select("#svggraph")
+
+                    // create a list of keys
+                    var keys = ["Non Tracking", "Tracking"];
+
+                    // Usually you have a color scale in your chart already
+                    var color = d3.scaleOrdinal()
+                        .domain(keys)
+                        .range(["blue", "red"]);
+
+                    // Add one dot in the legend for each name.
+                    svglegend.selectAll("mydots")
+                        .data(keys)
+                        .enter()
+                        .append("circle")
+                        .attr("cy", 30)
+                        .attr("cx", function(d, i) {
+                            return 30 + i * 150
+                        }) // 100 is where the first dot appears. 25 is the distance between dots
+                        .attr("r", 7)
+                        .style("fill", function(d) {
+                            return color(d)
+                        })
+
+                    // Add one dot in the legend for each name.
+                    svglegend.selectAll("mylabels")
+                        .data(keys)
+                        .enter()
+                        .append("text")
+                        .attr("y", 35)
+                        .attr("x", function(d, i) {
+                            return 40 + i * 150
+                        }) // 100 is where the first dot appears. 25 is the distance between dots
+                        .style("fill", function(d) {
+                            return color(d)
+                        })
+                        .text(function(d) {
+                            return d
+                        })
+                        .attr("text-anchor", "left")
+                        .style("alignment-baseline", "middle")
+                    //var colorgraph = d3.scaleOrdinal().domain([0, 1]).range(["blue", "red"]);
+
+                    var circles = node.append("circle")
+                        .attr("r", 5)
+                        .attr("fill", function(d) {
+                            return color(d.is_tracking);
+                        })
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended));
+                }
+
+                node.append("title")
+                    .text(function(d) {
+                        return d.id;
+                    });
+
+                simulation
+                    .nodes(graph.nodes)
+                    .on("tick", ticked);
+
+                simulation.force("link")
+                    .links(graph.links);
+
+                function ticked() {
+                    link
+                        .attr("x1", function(d) {
+                            return d.source.x;
+                        })
+                        .attr("y1", function(d) {
+                            return d.source.y;
+                        })
+                        .attr("x2", function(d) {
+                            return d.target.x;
+                        })
+                        .attr("y2", function(d) {
+                            return d.target.y;
+                        });
+
+                    node
+                        .attr("transform", function(d) {
+                            return "translate(" + d.x + "," + d.y + ")";
+                        })
+                }
+            });
+
+            function dragstarted(d) {
+                if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+                document.getElementById("ss").innerHTML = d.state;
+                document.getElementById("ipadd").innerHTML = d.ip;
+                document.getElementById("type").innerHTML = d.type;
+                document.getElementById("tracking_type").innerHTML = d.tracking_type;
+            }
+
+            function dragged(d) {
+                d.fx = d3.event.x;
+                d.fy = d3.event.y;
+
+
+            }
+
+            function dragended(d) {
+                if (!d3.event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
 </body>
 
