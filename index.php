@@ -42,12 +42,9 @@
             </div>
         </div>
         <div class="tracking wrappertrack">
-            <div id="tracking-grid">
 
-                <svg id="svgtracking" width="600" height="255"></svg>
+                <svg id="svgtracking" width="650" height="255"></svg>
 
-
-            </div>
         </div>
         <div class="web wrapperweb">
             <div id="web-grid"></div>
@@ -134,7 +131,7 @@
                 var svg = d3.select("#svgtracking"),
                     margin = {
                         top: 20,
-                        right: 0,
+                        right: 10,
                         bottom: 30,
                         left: 170
                     },

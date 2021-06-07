@@ -3,13 +3,31 @@
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
     gap: 20px 0px;
+    max-width: 1920px;
     grid-template-areas: "search search search search search search search search" "list list list list tracking tracking tracking tracking" "list list list list tracking tracking tracking tracking" "list list list list web web web web" "list list list list web web web web";
+
+    margin-left: auto;
+    margin-right: auto;
+
 }
+
+.grid-container-domain {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    gap: 20px 0px;
+    max-width: 1920px;
+    grid-template-areas: "list list list list tracking tracking tracking tracking" "list list list list tracking tracking tracking tracking" "list list list list web web web web" "list list list list web web web web";
+}
+
 
 .search {
     grid-area: search;
     height: 100px;
-    max-width: 1366px;
+    max-width: 1920px;
+    min-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .tracking {
@@ -17,9 +35,10 @@
     margin-top: 60px;
     margin-left: 20px;
     margin-bottom: 0px;
+    margin-right: 0px;
     width: 90%;
-    overflow: auto;
-    max-width: 1366px;
+    
+    max-width: 1920px;
 }
 
 .web {
@@ -29,7 +48,7 @@
     margin-top: 0px;
     width: 90%;
     overflow: auto;
-    max-width: 1366px;
+    max-width: 1920px;
 }
 
 .list {
@@ -39,7 +58,30 @@
     width: 90%;
     /*height: 7199px; */
     overflow: auto;
-    max-width: 1366px;
+    max-width: 1920px;
+}
+
+.wrapper {
+    border: 1px solid #ddd;
+    width: 100%;
+    height: 550px;
+    overflow-y: auto;
+    max-width: 1920px;
+}
+
+.wrappertrack {
+    border: 1px solid #ddd;
+    height: 270px;
+    width: 90%;
+    max-width: 1920px;
+}
+
+.wrapperweb {
+    border: 1px solid #ddd;
+    width: 90%;
+    max-width: 1920px;
+    height: 255px;
+    overflow-y: auto;
 }
 
 .padding {
@@ -94,29 +136,7 @@
     color: #45bbff;
 }
 
-.wrapper {
-    border: 1px solid #ddd;
-    width: 100%;
-    height: 550px;
-    overflow-y: auto;
-    max-width: 1366px;
-}
 
-.wrappertrack {
-    border: 1px solid #ddd;
-    height: 270px;
-    width: 90%;
-    max-width: 1366px;
-    overflow-y: auto;
-}
-
-.wrapperweb {
-    border: 1px solid #ddd;
-    width: 90%;
-    max-width: 1366px;
-    height: 255px;
-    overflow-y: auto;
-}
 
 .names {
     fill: none;
@@ -238,6 +258,9 @@
     background-color: rgb(211, 226, 247);
     overflow: hidden;
     color: black;
+    max-width: 2500px;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   /* Style the links inside the navigation bar */
