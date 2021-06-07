@@ -2,7 +2,7 @@
 require_once "config.php";
 $domain = trim($_GET["domain_url"]);
 
-$sql = "SELECT url.id, url.url, url.type, url.country_code, url.is_EU ,url.resource_id FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ?";
+$sql = "SELECT url.id, url.url, url.type, url.country_code, url.is_EU, url.resource_id, resource.is_tracking FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id JOIN resource ON url.resource_id= resource.id WHERE domain.name = ?";
 
 if ($stmt = mysqli_prepare($link, $sql)) {
 	mysqli_stmt_bind_param($stmt, "s", $param_domain);
@@ -10,7 +10,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 	$param_domain = $domain;
 
 	if (mysqli_stmt_execute($stmt)) {
-		mysqli_stmt_bind_result($stmt, $id, $url, $type, $country_code, $is_EU, $resource_id);
+		mysqli_stmt_bind_result($stmt, $id, $url, $type, $country_code, $is_EU, $resource_id, $is_tracking);
 		while (mysqli_stmt_fetch($stmt)) {
 			echo "<tr>";
 			echo "<td> $id </td>";

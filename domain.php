@@ -86,13 +86,25 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                     $trackings[] = " $tracking_name";
                 }
             } else {
+                
+                if (!is_null($tmp_security_info)) {
+                    $decoded_json = json_decode($tmp_security_info, true);
+                    try {
+                        $security_state = $decoded_json['state'];
+                    } catch (Exception $e) {
+                        $security_state = 'undefined';
+                    }
+                   
+                } else {
+                    $security_state = 'undefined';
+                }
+                
 
-                $decoded_json = json_decode($tmp_security_info, true);
-                $count_trackings = (count($trackings) == 0) ? 0 : 1;
-                if ($count_trackings == 0) {
+                $count_trackings = (count($trackings) == 0) ? "Not-Tracking" : "Tracking";
+                if ($count_trackings == "Not-Tracking") {
                     $trackings[] = "Not-Tracking";
                 }
-                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
 
                 if ($tmp_initiator != null) {
                     $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -124,7 +136,23 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             }
         }
 
-        $decoded_json = json_decode($tmp_security_info, true);
+        if (!is_null($tmp_security_info)) {
+            $decoded_json = json_decode($tmp_security_info, true);
+            try {
+                $security_state = $decoded_json['state'];
+            } catch (Exception $e) {
+                $security_state = 'undefined';
+            }
+           
+        } else {
+            $security_state = 'undefined';
+        }
+        
+
+        $count_trackings = (count($trackings) == 0) ? "Not-Tracking" : "Tracking";
+        if ($count_trackings == "Not-Tracking") {
+            $trackings[] = "Not-Tracking";
+        }
         $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
 
         if ($tmp_initiator != null) {
@@ -212,6 +240,10 @@ mysqli_close($link);
                     <tr>
                         <td>IP Address</td>
                         <td id="ipadd" style="text-align: left;"></td>
+                    </tr>
+                    <tr>
+                        <td>Node Id</td>
+                        <td id="nodeid" style="text-align: left;"></td>
                     </tr>
 
                 </table>
@@ -494,7 +526,7 @@ mysqli_close($link);
                     var svglegend = d3.select("#svggraph")
 
                     // create a list of keys
-                    var keys = ["main frame", "image", "stylesheet", "beacon", "script", "font", "xmlhttprequest", "websocket", "sub_frame", "object", "media", "other", "csp_report"];
+                    var keys = ["main_frame", "image", "stylesheet", "beacon", "script", "font", "xmlhttprequest", "websocket", "sub_frame", "object", "media", "other", "csp_report"];
 
                     // Usually you have a color scale in your chart already
                     var color = d3.scaleOrdinal()
@@ -506,9 +538,9 @@ mysqli_close($link);
                         .data(keys)
                         .enter()
                         .append("circle")
-                        .attr("cy", 30)
-                        .attr("cx", function(d, i) {
-                            return 30 + i * 150
+                        .attr("cx", 10)
+                        .attr("cy", function(d, i) {
+                            return 35 + i * 25
                         }) // 100 is where the first dot appears. 25 is the distance between dots
                         .attr("r", 7)
                         .style("fill", function(d) {
@@ -520,9 +552,9 @@ mysqli_close($link);
                         .data(keys)
                         .enter()
                         .append("text")
-                        .attr("y", 35)
-                        .attr("x", function(d, i) {
-                            return 40 + i * 150
+                        .attr("x", 30)
+                        .attr("y", function(d, i) {
+                            return 40 + i * 25
                         }) // 100 is where the first dot appears. 25 is the distance between dots
                         .style("fill", function(d) {
                             return color(d)
@@ -548,7 +580,7 @@ mysqli_close($link);
                     var svglegend = d3.select("#svggraph")
 
                     // create a list of keys
-                    var keys = ["Non Tracking", "Tracking"];
+                    var keys = ["Not-Tracking", "Tracking"];
 
                     // Usually you have a color scale in your chart already
                     var color = d3.scaleOrdinal()
@@ -560,9 +592,9 @@ mysqli_close($link);
                         .data(keys)
                         .enter()
                         .append("circle")
-                        .attr("cy", 30)
-                        .attr("cx", function(d, i) {
-                            return 30 + i * 150
+                        .attr("cx", 10)
+                        .attr("cy", function(d, i) {
+                            return 35 + i * 25
                         }) // 100 is where the first dot appears. 25 is the distance between dots
                         .attr("r", 7)
                         .style("fill", function(d) {
@@ -574,9 +606,9 @@ mysqli_close($link);
                         .data(keys)
                         .enter()
                         .append("text")
-                        .attr("y", 35)
-                        .attr("x", function(d, i) {
-                            return 40 + i * 150
+                        .attr("x", 30)
+                        .attr("y", function(d, i) {
+                            return 40 + i * 25
                         }) // 100 is where the first dot appears. 25 is the distance between dots
                         .style("fill", function(d) {
                             return color(d)
@@ -585,8 +617,7 @@ mysqli_close($link);
                             return d
                         })
                         .attr("text-anchor", "left")
-                        .style("alignment-baseline", "middle")
-                    //var colorgraph = d3.scaleOrdinal().domain([0, 1]).range(["blue", "red"]);
+                        .style("alignment-baseline", "middle");
 
                     var circles = node.append("circle")
                         .attr("r", 5)
@@ -637,6 +668,7 @@ mysqli_close($link);
                 if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                 d.fx = d.x;
                 d.fy = d.y;
+                document.getElementById("nodeid").innerHTML = d.id;
                 document.getElementById("ss").innerHTML = d.state;
                 document.getElementById("ipadd").innerHTML = d.ip;
                 document.getElementById("type").innerHTML = d.type;
