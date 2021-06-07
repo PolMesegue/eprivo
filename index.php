@@ -153,10 +153,6 @@
 
                 svg.call(tip);
 
-                /*data.sort(function(a, b) {
-                    return a.value - b.value;
-                }); */
-
                 x.domain([0, d3.max(data, function(d) {
                     return d.value;
                 })]);
@@ -198,17 +194,9 @@
             }, 500);
         }
 
-
-
-
-
         function updateWebGrid(str) {
             var xhttp;
-            if (str == "") {
-                document.xhttp.send("domain_url=" + str);
-                getElementById("txtHint").innerHTML = "";
-                return;
-            }
+            
             xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {

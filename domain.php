@@ -209,9 +209,11 @@ mysqli_close($link);
             </div>
         </div>
         <div class="web wrapperweb">
+            <div id="web-map-grid"></div>
             <div id="web-grid">
 
-                <table class="table table-hover">
+                <table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
+                    <th colspan="2" style="text-align: center;">Node Info <br><p id="clicknode">Click on a node to obtain information</p></th>
                     <tr>
                         <td>Type</td>
                         <td id="type" style="text-align: left;"></td>
@@ -231,10 +233,6 @@ mysqli_close($link);
                         <td>IP Address</td>
                         <td id="ipadd" style="text-align: left;"></td>
                     </tr>
-                    <tr>
-                        <td>Node Id</td>
-                        <td id="nodeid" style="text-align: left;"></td>
-                    </tr>
 
                 </table>
 
@@ -244,8 +242,8 @@ mysqli_close($link);
         <div class="list">
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true">Resources</button>
-                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false">Map</button>
+                    <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true" onclick="showGraph()">Resources</button>
+                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" onclick="updateWebGrid('<?php echo $domain;?>')">Map</button>
 
                 </div>
             </nav>
@@ -658,7 +656,8 @@ mysqli_close($link);
                 if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                 d.fx = d.x;
                 d.fy = d.y;
-                document.getElementById("nodeid").innerHTML = d.id;
+                
+                document.getElementById("clicknode").style.display = "none";
                 document.getElementById("ss").innerHTML = d.state;
                 document.getElementById("ipadd").innerHTML = d.ip;
                 document.getElementById("type").innerHTML = d.type;
@@ -677,6 +676,28 @@ mysqli_close($link);
                 d.fx = null;
                 d.fy = null;
             }
+        }
+
+        function showGraph() {
+            document.getElementById("web-map-grid").style.display = "none"; 
+            document.getElementById("web-grid").style.display = "block";
+        }
+
+        function updateWebGrid(str) {
+            var xhttp;
+          
+            xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("web-map-grid").style.display = "block";
+                    document.getElementById("web-map-grid").innerHTML = this.responseText;
+                    document.getElementById("web-grid").style.display = "none"; 
+                }                                        
+            };
+            xhttp.open("POST", "web_grid.php", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("domain_url=" + str);
+
         }
     </script>
 

@@ -35,7 +35,8 @@
     margin-top: 60px;
     margin-left: 20px;
     margin-bottom: 0px;
-    margin-right: 0px;
+    margin-right: 10px;
+    overflow: auto;
     width: 90%;
     
     max-width: 1920px;
@@ -44,7 +45,7 @@
 .web {
     grid-area: web;
     margin-left: 20px;
-    margin-right: auto;
+    margin-right: 10px;
     margin-top: 0px;
     width: 90%;
     overflow: auto;
