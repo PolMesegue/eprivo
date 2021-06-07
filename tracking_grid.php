@@ -35,3 +35,4 @@ mysqli_close($link);
 
 //echo $data_text;
 echo json_encode($data_text);
+?>
