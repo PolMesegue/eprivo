@@ -86,7 +86,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                     $trackings[] = " $tracking_name";
                 }
             } else {
-                
+
                 if (!is_null($tmp_security_info)) {
                     $decoded_json = json_decode($tmp_security_info, true);
                     try {
@@ -94,11 +94,10 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                     } catch (Exception $e) {
                         $security_state = 'undefined';
                     }
-                   
                 } else {
                     $security_state = 'undefined';
                 }
-                
+
 
                 $count_trackings = (count($trackings) == 0) ? "Not-Tracking" : "Tracking";
                 if ($count_trackings == "Not-Tracking") {
@@ -143,11 +142,10 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             } catch (Exception $e) {
                 $security_state = 'undefined';
             }
-           
         } else {
             $security_state = 'undefined';
         }
-        
+
 
         $count_trackings = (count($trackings) == 0) ? "Not-Tracking" : "Tracking";
         if ($count_trackings == "Not-Tracking") {
@@ -194,8 +192,13 @@ mysqli_close($link);
 </head>
 
 <body onload="updateTrackingGrid('<?php echo $domain; ?>'), reloadGraph('is_tracking')">
+
+    <div class="topnav">
+        <a class="active" href="index.php">Home</a>
+        <a href="about.php">About</a>
+    </div>
+
     <div class="grid-container">
-        <div class="back"> <a href="index.php"> <button type="button" class="btn btn-primary">Home</button></a></div>
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
@@ -209,7 +212,6 @@ mysqli_close($link);
                 </div>
             </div>
         </div>
-        <div class="about"> <a href="about.php"><button type="button" class="btn btn-primary">About</button></a></div>
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
 
@@ -275,7 +277,7 @@ mysqli_close($link);
 
                     <svg id="svggraph" width="960" height="600"></svg>
 
-                   
+
 
 
                 </div>

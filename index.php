@@ -17,9 +17,17 @@
 
 
 <body onload="showTableIntruder(), updateTrackingGrid('google.com'), updateWebGrid('google.com')">
-    <div class="grid-container">
 
-    <div class="back"> <a href="index.php"> <button type="button" class="btn btn-primary">Home</button></a></div>
+    <div class="topnav">
+        <a class="active" href="index.php">Home</a>
+        <a href="about.php">About</a>
+    </div>
+
+    <h1 style="text-align:center; margin-top:30px;"> ePrivacy Observatory </h1>
+    <h2 style="text-align:center;"> Analize a domain with the Online Resource Mapper tool <br> and see how it's vulnerating your right to privacy </h2>
+
+
+    <div class="grid-container">
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
@@ -29,15 +37,14 @@
                             <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain">
                         </div>
                     </form>
-
+                    <p style="text-align:center;">Enter a Domain here, and if it's not analized yet by ORM, it will be queued and analized soon <br> Or you can also browse the following top-lists</p>
                 </div>
             </div>
         </div>
-        <div class="about"> <a href="about.php"><button type="button" class="btn btn-primary">About</button></a></div>
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
 
-            <svg id="svgtracking"  width="600" height="255"></svg>
+                <svg id="svgtracking" width="600" height="255"></svg>
 
 
             </div>
@@ -63,7 +70,7 @@
 
     </div>
 
-    
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
@@ -135,12 +142,12 @@
                     height = +svg.attr("height") - margin.top - margin.bottom;
 
                 var tip = d3.tip()
-                            .attr('class', 'd3-tip')
-                            .offset([-10, 0])
-                            .html(function(d) {
-                                return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
-                            })
-        
+                    .attr('class', 'd3-tip')
+                    .offset([-10, 0])
+                    .html(function(d) {
+                        return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
+                    })
+
                 var x = d3.scaleLinear().range([0, width]);
                 var y = d3.scaleBand().range([height, 0]);
 
@@ -148,7 +155,7 @@
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 svg.call(tip);
-                
+
                 /*data.sort(function(a, b) {
                     return a.value - b.value;
                 }); */
