@@ -289,3 +289,61 @@
     background-color: #0415aa;
     color: white;
   }
+
+  .btn-red {
+    background-color: red;
+    border: none;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 2px;
+    cursor: help;
+    width: 55px;
+  }
+  .btn-orange {
+    background-color: orange;
+    border: none;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 2px;
+    cursor: help;
+    width: 55px;
+  }
+  .btn-yellow {
+    background-color: yellow;
+    border: none;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 2px;
+    cursor: help;
+    width: 55px;
+  }
+
+  .btn-green {
+    background-color: lightgreen;
+    border: none;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 2px;
+    cursor: default;
+    width: 55px;
+  }

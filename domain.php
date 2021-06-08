@@ -192,7 +192,6 @@ mysqli_close($link);
 </head>
 
 <body onload="updateTrackingGrid('<?php echo $domain; ?>'), reloadGraph('is_tracking')">
-
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
         <a href="about.php">About</a>
@@ -424,10 +423,11 @@ mysqli_close($link);
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 svg.call(tip);
-
+                
+                /*
                 data.sort(function(a, b) {
                     return a.value - b.value;
-                });
+                }); */
 
                 x.domain([0, d3.max(data, function(d) {
                     return d.value;
