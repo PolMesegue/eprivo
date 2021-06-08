@@ -24,19 +24,19 @@ while ($row = mysqli_fetch_assoc($result)) {
     echo "<td class=\"align-middle\"> {$row['domain_name']}</td>";
     $rest = substr($row['intrusion_lvl'], 0, -2);  
     if ($rest >= "40") {
-        echo "<td class=\"align-middle\"> <button class=\"btn-red\" disabled> $rest </button></td>";
+        echo "<td class=\"align-middle\"> <button class=\"btn-red\"> $rest </button></td>";
 
     }
     elseif($rest >= "21" ) {
-        echo "<td class=\"align-middle\"> <button class=\"btn-orange\" disabled> $rest </button></td>";
+        echo "<td class=\"align-middle\"> <button class=\"btn-orange\"> $rest </button></td>";
 
     }
     elseif ($rest > "0") {
-        echo "<td class=\"align-middle\"> <button class=\"btn-yellow\" disabled> $rest </button></td>";
+        echo "<td class=\"align-middle\"> <button class=\"btn-yellow\"> $rest </button></td>";
 
     }
     elseif ($row['intrusion_lvl'] == NULL) {
-        echo "<td class=\"align-middle\"> <button class=\"btn-green\" disabled> 0 </button></td>";
+        echo "<td class=\"align-middle\"> <button class=\"btn-green\"> 0 </button></td>";
     }
     echo "<td class=\"align-middle\"> <a href=\"domain.php?domain_url={$row['domain_name']}\"><i class=\"far fa-plus-square\"></i></a></td>";
     echo "</tr>";

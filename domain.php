@@ -45,7 +45,7 @@ $tmp_id = -1;
 $typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
 $trackings = [];
 
-$sql = "select url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? UNION SELECT url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? ORDER BY id";
+$sql = "select url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? UNION SELECT url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? ORDER BY id";
 
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
@@ -53,7 +53,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     $param_domain = $domain;
 
     if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $server_ip, $security_info, $tracking_name);
+        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $server_ip, $security_info, $tracking_name, $third_party);
         while (mysqli_stmt_fetch($stmt)) {
 
             if ($tmp_id == $id) {
@@ -61,7 +61,6 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                     $trackings[] = " $tracking_name";
                 }
             } elseif ($tmp_id == -1) {
-
 
                 $tmp_initiator = $initiator;
 
@@ -81,10 +80,10 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                     $tmp_security_info = $security_info;
                 }
                 $tmp_id = $id;
-
                 if (!is_null($tracking_name)) {
                     $trackings[] = " $tracking_name";
                 }
+                $tmp_third_party = $third_party;
             } else {
 
                 if (!is_null($tmp_security_info)) {
@@ -98,12 +97,12 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                     $security_state = 'undefined';
                 }
 
-
+                $is_third = ($tmp_third_party == 0) ? "First-Party" : "Third-Party";
                 $count_trackings = (count($trackings) == 0) ? "Not-Tracking" : "Tracking";
                 if ($count_trackings == "Not-Tracking") {
                     $trackings[] = "Not-Tracking";
                 }
-                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
                 if ($tmp_initiator != null) {
                     $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -127,6 +126,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 } else {
                     $tmp_security_info = $security_info;
                 }
+                $tmp_third_party = $third_party;
                 $tmp_id = $id;
                 $trackings = [];
                 if (!is_null($tracking_name)) {
@@ -146,12 +146,12 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             $security_state = 'undefined';
         }
 
-
+        $is_third = ($tmp_third_party == 0) ? "First-Party" : "Third-Party";
         $count_trackings = (count($trackings) == 0) ? "Not-Tracking" : "Tracking";
         if ($count_trackings == "Not-Tracking") {
             $trackings[] = "Not-Tracking";
         }
-        $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings];
+        $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
         if ($tmp_initiator != null) {
             $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -167,6 +167,25 @@ $tmpfname = tempnam("/var/www/html/data/", 'graph-');
 file_put_contents($tmpfname, json_encode($graph));
 
 $piecesGraph = explode('/data', $tmpfname);
+
+$sql = "select SUM(count_trackings) AS intr_lvl FROM (select tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level UNION SELECT tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY domain_name";
+
+if ($stmt = mysqli_prepare($link, $sql)) {
+    mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
+
+    $param_domain = $domain;
+
+    if (mysqli_stmt_execute($stmt)) {
+
+        mysqli_stmt_bind_result($stmt, $intr_lvl);
+        while (mysqli_stmt_fetch($stmt)) {
+        }
+    }
+    mysqli_stmt_close($stmt);
+}
+
+
+
 
 mysqli_close($link);
 
@@ -197,11 +216,33 @@ mysqli_close($link);
         <a href="about.php">About</a>
     </div>
 
-    <div class="grid-container-domain">
+    <div class="grid-container">
+
+        <div class="search">
+            <?php
+            $rest = substr($intr_lvl, 0, -2);  
+            if ($rest >= "40") {
+                echo "Intrusion Level for $domain: <button class=\"btn-red\" disabled> $rest </button>";
         
+            }
+            elseif($rest >= "21" ) {
+                echo "Intrusion Level for $domain: <button class=\"btn-orange\" disabled> $rest </button>";
+        
+            }
+            elseif ($rest > "0") {
+                echo "Intrusion Level for $domain: <button class=\"btn-yellow\" disabled> $rest </button>";
+        
+            }
+            elseif ($rest == NULL) {
+                echo "Intrusion Level for $domain: <button class=\"btn-green\" disabled> $rest </button>";
+            }
+
+            ?>
+        </div>
+
+
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
-
                 <svg id="svgtracking" width="650" height="255"></svg>
 
 
@@ -212,7 +253,9 @@ mysqli_close($link);
             <div id="web-grid">
 
                 <table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
-                    <th colspan="2" style="text-align: center;">Node Info <br><p id="clicknode">Click on a node to obtain information</p></th>
+                    <th colspan="2" style="text-align: center;">Node Info <br>
+                        <p id="clicknode">Click on a node to obtain information</p>
+                    </th>
                     <tr>
                         <td>Type</td>
                         <td id="type" style="text-align: left;"></td>
@@ -242,7 +285,7 @@ mysqli_close($link);
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true" onclick="showGraph()">Resources</button>
-                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" onclick="updateWebGrid('<?php echo $domain;?>')">Map</button>
+                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" onclick="updateWebGrid('<?php echo $domain; ?>')">Map</button>
 
                 </div>
             </nav>
@@ -255,6 +298,7 @@ mysqli_close($link);
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
                             <li><button class="dropdown-item" type="button" onclick="reloadGraph('is_tracking')">Is Tracking</button></li>
+                            <li><button class="dropdown-item" type="button" onclick="reloadGraph('is_third')">Is Third Party</button></li>
                             <li><button class="dropdown-item" type="button" onclick="reloadGraph('type')">Type</button></li>
 
                         </ul>
@@ -423,7 +467,7 @@ mysqli_close($link);
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 svg.call(tip);
-                
+
                 /*
                 data.sort(function(a, b) {
                     return a.value - b.value;
@@ -562,7 +606,7 @@ mysqli_close($link);
                             .on("start", dragstarted)
                             .on("drag", dragged)
                             .on("end", dragended));
-                } else {
+                } else if (str == 'is_tracking') {
 
 
                     var svglegend = d3.select("#svggraph")
@@ -573,7 +617,9 @@ mysqli_close($link);
                     // Usually you have a color scale in your chart already
                     var color = d3.scaleOrdinal()
                         .domain(keys)
-                        .range(["blue", "red"]);
+                        .range(["rgb(80, 185, 255)", "rgb(255, 60, 60)"]);
+
+
 
                     // Add one dot in the legend for each name.
                     svglegend.selectAll("mydots")
@@ -616,6 +662,62 @@ mysqli_close($link);
                             .on("start", dragstarted)
                             .on("drag", dragged)
                             .on("end", dragended));
+                } else {
+
+                    var svglegend = d3.select("#svggraph")
+
+                    // create a list of keys
+                    var keys = ["First-Party", "Third-Party"];
+
+                    // Usually you have a color scale in your chart already
+                    var color = d3.scaleOrdinal()
+                        .domain(keys)
+                        .range(["rgb(80, 185, 255)", "rgb(255, 60, 60)"]);
+
+
+
+                    // Add one dot in the legend for each name.
+                    svglegend.selectAll("mydots")
+                        .data(keys)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", 10)
+                        .attr("cy", function(d, i) {
+                            return 35 + i * 25
+                        }) // 100 is where the first dot appears. 25 is the distance between dots
+                        .attr("r", 7)
+                        .style("fill", function(d) {
+                            return color(d)
+                        })
+
+                    // Add one dot in the legend for each name.
+                    svglegend.selectAll("mylabels")
+                        .data(keys)
+                        .enter()
+                        .append("text")
+                        .attr("x", 30)
+                        .attr("y", function(d, i) {
+                            return 40 + i * 25
+                        }) // 100 is where the first dot appears. 25 is the distance between dots
+                        .style("fill", function(d) {
+                            return color(d)
+                        })
+                        .text(function(d) {
+                            return d
+                        })
+                        .attr("text-anchor", "left")
+                        .style("alignment-baseline", "middle");
+
+                    var circles = node.append("circle")
+                        .attr("r", 5)
+                        .attr("fill", function(d) {
+                            return color(d.is_third);
+                        })
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended));
+
                 }
 
                 node.append("title")
@@ -656,7 +758,7 @@ mysqli_close($link);
                 if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                 d.fx = d.x;
                 d.fy = d.y;
-                
+
                 document.getElementById("clicknode").style.display = "none";
                 document.getElementById("ss").innerHTML = d.state;
                 document.getElementById("ipadd").innerHTML = d.ip;
@@ -679,20 +781,20 @@ mysqli_close($link);
         }
 
         function showGraph() {
-            document.getElementById("web-map-grid").style.display = "none"; 
+            document.getElementById("web-map-grid").style.display = "none";
             document.getElementById("web-grid").style.display = "block";
         }
 
         function updateWebGrid(str) {
             var xhttp;
-          
+
             xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     document.getElementById("web-map-grid").style.display = "block";
                     document.getElementById("web-map-grid").innerHTML = this.responseText;
-                    document.getElementById("web-grid").style.display = "none"; 
-                }                                        
+                    document.getElementById("web-grid").style.display = "none";
+                }
             };
             xhttp.open("POST", "web_grid.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

@@ -16,8 +16,8 @@ echo "<th style=\"background: #557bce;position: sticky;top: 0px;\"> </th>";
 echo "</tr>";
 while ($row = mysqli_fetch_assoc($result)) {
     echo "<tr id = {$row['domain_name']} onclick=\"updateTrackingGrid(this.id); updateWebGrid(this.id);\">";
-    echo "<td> {$row['alexa_rank']} </td>";
-    echo "<td> {$row['domain_name']}</td>";
+    echo "<td class=\"align-middle\"> {$row['alexa_rank']} </td>";
+    echo "<td class=\"align-middle\"> {$row['domain_name']}</td>";
     $rest = substr($row['intrusion_lvl'], 0, -2);  
     if ($rest >= "40") {
         echo "<td class=\"align-middle\"> <button class=\"btn-red\" disabled> $rest </button></td>";
@@ -34,7 +34,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     elseif ($row['intrusion_lvl'] == NULL) {
         echo "<td class=\"align-middle\"> <button class=\"btn-green\" disabled> 0 </button></td>";
     }
-    echo "<td> <a href=\"domain.php?domain_url={$row['domain_name']}\"><i class=\"far fa-plus-square\"></i></a></td>";
+    echo "<td class=\"align-middle\"> <a href=\"domain.php?domain_url={$row['domain_name']}\"><i class=\"far fa-plus-square\"></i></a></td>";
     echo "</tr>";
 }
 
