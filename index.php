@@ -16,7 +16,7 @@
 </head>
 
 
-<body onload="showTableIntruder(), updateTrackingGrid('google.com'), updateWebGrid('google.com')">
+<body onload="showTableIntruder(), updateTrackingGrid('amazon.com'), updateWebGrid('amazon.com')">
 
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
@@ -31,7 +31,7 @@
         <div class="search">
             <div class="row justify-content-center padding">
                 <div class="col-md-8 ftco-animate fadeInUp ftco-animated">
-                    <form action="domain_handler.php" class="domain-form" method="post">
+                    <form action="domain_analizer.php" class="domain-form" method="post">
                         <div class="form-group d-md-flex">
                             <input type="text" id="domain_url" name="domain_url" class="form-control px-4" placeholder="Insert domain here..." pattern="((?:[a-z\d](?:[a-z\d-]{0,63}[a-z\d])?|\*)\.)+[a-z\d][a-z\d-]{0,63}[a-z\d]" title="Enter a valid domain syntax" required>
                             <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain">
