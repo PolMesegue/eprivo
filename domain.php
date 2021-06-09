@@ -254,7 +254,7 @@ mysqli_close($link);
 
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
-                <svg id="svgtracking" width="650" height="315"></svg>
+                <svg id="svgtracking" width="650" height="255"></svg>
 
 
             </div>
