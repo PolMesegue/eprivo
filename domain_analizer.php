@@ -35,7 +35,7 @@ if (checkdnsrr($domain, "A")) {
         }
     }
 } else {
-    header('Location: ./error.php');
+    header('Location: ./error.php?code=2');
     die();
 }
 
@@ -90,7 +90,7 @@ if (checkdnsrr($domain, "A")) {
                 } else {
                     endTime = new Date();
                     if ((endTime - startTime) > 30000) {
-                        window.location.replace("error.php");
+                        window.location.replace("error.php?code=1");
                     }
                 }
             }
