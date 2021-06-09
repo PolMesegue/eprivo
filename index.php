@@ -43,7 +43,7 @@
         </div>
         <div class="tracking wrappertrack">
 
-                <svg id="svgtracking" width="650" height="255"></svg>
+            <svg id="svgtracking" width="650" height="255"></svg>
 
         </div>
         <div class="web wrapperweb">
@@ -175,6 +175,15 @@
                     .data(data)
                     .enter().append("rect")
                     .attr("class", "bar")
+                    .attr("style", function(d) {
+                        if (d.area == "Session cookies" || d.area == "Long-living cookies") {
+                            return "fill:yellow";
+                        } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)") {
+                            return "fill:red";
+                        } else {
+                            return "fill:orange";
+                        }
+                    })
                     .attr("x", 0)
                     .attr("height", y.bandwidth())
                     .attr("y", function(d) {
@@ -196,7 +205,7 @@
 
         function updateWebGrid(str) {
             var xhttp;
-            
+
             xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {

@@ -46,6 +46,15 @@
     max-width: 1920px;
 }
 
+.wrapperlvl {
+   
+    height: 70px;
+    width: 90%;
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .web {
     grid-area: web;
     margin-left: 20px;

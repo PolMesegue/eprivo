@@ -216,30 +216,23 @@ mysqli_close($link);
         <a href="about.php">About</a>
     </div>
 
-    <div class="grid-container">
+    <div class="wrapperlvl">
+        <?php
+        $rest = substr($intr_lvl, 0, -2);
+        if ($rest >= "40") {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-red\" disabled> $rest </button></h2>";
+        } elseif ($rest >= "21") {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-orange\" disabled> $rest </button></h2>";
+        } elseif ($rest > "0") {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-yellow\" disabled> $rest </button></h2>";
+        } elseif ($rest == NULL) {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-green\" disabled> 0 </button></h2>";
+        }
 
-        <div class="search">
-            <?php
-            $rest = substr($intr_lvl, 0, -2);  
-            if ($rest >= "40") {
-                echo "Intrusion Level for $domain: <button class=\"btn-red\" disabled> $rest </button>";
-        
-            }
-            elseif($rest >= "21" ) {
-                echo "Intrusion Level for $domain: <button class=\"btn-orange\" disabled> $rest </button>";
-        
-            }
-            elseif ($rest > "0") {
-                echo "Intrusion Level for $domain: <button class=\"btn-yellow\" disabled> $rest </button>";
-        
-            }
-            elseif ($rest == NULL) {
-                echo "Intrusion Level for $domain: <button class=\"btn-green\" disabled> $rest </button>";
-            }
+        ?>
+    </div>
 
-            ?>
-        </div>
-
+    <div class="grid-container-domain">
 
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
@@ -468,11 +461,6 @@ mysqli_close($link);
 
                 svg.call(tip);
 
-                /*
-                data.sort(function(a, b) {
-                    return a.value - b.value;
-                }); */
-
                 x.domain([0, d3.max(data, function(d) {
                     return d.value;
                 })]);
@@ -490,11 +478,24 @@ mysqli_close($link);
                 g.append("g")
                     .attr("class", "y axis")
                     .call(d3.axisLeft(y));
-
+                 
                 g.selectAll(".bar")
                     .data(data)
                     .enter().append("rect")
                     .attr("class", "bar")
+                    .attr("style", function(d) {
+                        if (d.area == "Session cookies" || d.area == "Long-living cookies") {
+                            return "fill:yellow";
+                        }
+                        else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)") {
+                            return "fill:red";
+                        } 
+                        else {
+                            return "fill:orange";
+                        }
+                        
+                        
+                    })
                     .attr("x", 0)
                     .attr("height", y.bandwidth())
                     .attr("y", function(d) {
