@@ -31,6 +31,9 @@ $err = htmlspecialchars(stripslashes(trim($_GET["code"])));
         elseif ($err == "2"){
             echo "<h2 style=\"text-align:center;padding-top:30px;\"> The introduced domain does not have a valid A record.</h1>";
         }
+        elseif ($err == "3"){
+            echo "<h2 style=\"text-align:center;padding-top:30px;\"> The introduced domain does not exist in our database.</h1>";
+        }
         else {
             echo $err;
             echo "<h2 style=\"text-align:center;padding-top:30px;\"> Oops Something went wrong.</h1>";

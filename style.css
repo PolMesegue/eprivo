@@ -85,7 +85,7 @@
 
 .wrappertrack {
     border: 1px solid #ddd;
-    height: 270px;
+    height: 320px;
     width: 90%;
     max-width: 1920px;
 }
@@ -94,7 +94,7 @@
     border: 1px solid #ddd;
     width: 90%;
     max-width: 1920px;
-    height: 255px;
+    height: 320px;
     overflow-y: auto;
 }
 

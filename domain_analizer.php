@@ -2,43 +2,68 @@
 require_once "config.php";
 
 $domain = htmlspecialchars(stripslashes(trim($_POST["domain_url"])));
+$update_domain = htmlspecialchars(stripslashes(trim($_POST["update_domain"])));
 
+if ($update_domain == "yes") {
 
-if (checkdnsrr($domain, "A")) {
+    $sql = "update domain set priority = 1 where name = ?";
 
-    $sql = "SELECT id FROM domain WHERE name = ?";
     if ($stmt = mysqli_prepare($link, $sql)) {
         mysqli_stmt_bind_param($stmt, "s", $param_domain);
         $param_domain = $domain;
         if (mysqli_stmt_execute($stmt)) {
-            mysqli_stmt_store_result($stmt);
-            if (mysqli_stmt_num_rows($stmt) == 1) {
-                header('Location: ./domain.php?domain_url=' . $domain);
-                mysqli_stmt_close($stmt);
-                mysqli_close($link);
-                die();
-            } else {
-                mysqli_stmt_close($stmt);
-                $hashed = hash('sha256', $domain);
-                $sql = "INSERT INTO domain (hash, name, priority) VALUES (\"$hashed\", \"$domain\", 1)";
+        } else {
+            header('Location: ./error.php?code=4');
+            mysqli_stmt_close($stmt);
+            mysqli_close($link);
+            die();
+        }
+    }
+    mysqli_stmt_close($stmt);
+    mysqli_close($link);
+} else {
+    if (checkdnsrr($domain, "A")) {
 
-                if (mysqli_query($link, $sql)) {
-                } else {
-                    header('Location: ./error.php');
+        $sql = "SELECT id FROM domain WHERE name = ?";
+        if ($stmt = mysqli_prepare($link, $sql)) {
+            mysqli_stmt_bind_param($stmt, "s", $param_domain);
+            $param_domain = $domain;
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    header('Location: ./domain.php?domain_url=' . $domain);
                     mysqli_stmt_close($stmt);
                     mysqli_close($link);
                     die();
-                }
+                } else {
+                    mysqli_stmt_close($stmt);
+                    $hashed = hash('sha256', $domain);
+                    $sql = "INSERT INTO domain (hash, name, priority) VALUES (?, ?, 1)";
 
-                mysqli_close($link);
+                    if ($stmt = mysqli_prepare($link, $sql)) {
+                        mysqli_stmt_bind_param($stmt, "ss", $param_hashed, $param_domain);
+                        $param_hashed = $hashed;
+                        $param_domain = $domain;
+                        if (mysqli_stmt_execute($stmt)) {
+                        } else {
+                            header('Location: ./error.php?code=4');
+                            mysqli_stmt_close($stmt);
+                            mysqli_close($link);
+                            die();
+                        }
+                        mysqli_stmt_close($stmt);
+                        mysqli_close($link);
+                    }
+                }
             }
         }
+    } else {
+        header('Location: ./error.php?code=2');
+        die();
     }
-} else {
-    header('Location: ./error.php?code=2');
-    die();
+    mysqli_stmt_close($stmt);
+    mysqli_close($link);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -100,7 +125,6 @@ if (checkdnsrr($domain, "A")) {
         xhttp.send("domain_url=" + str);
 
     }
-
 </script>
 
 </html>

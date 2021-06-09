@@ -2,6 +2,24 @@
 require_once "config.php";
 $domain = htmlspecialchars(stripslashes(trim($_GET["domain_url"])));
 
+
+$sql = "SELECT id FROM domain WHERE name = ?";
+if ($stmt = mysqli_prepare($link, $sql)) {
+    mysqli_stmt_bind_param($stmt, "s", $param_domain);
+    $param_domain = $domain;
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_store_result($stmt);
+        if (mysqli_stmt_num_rows($stmt) != 1) {
+            header('Location: ./error.php?code=3');
+            mysqli_stmt_close($stmt);
+            die();
+        }
+    }
+}
+
+
+
+
 $codes = json_decode(file_get_contents('http://country.io/iso3.json'), true);
 
 $sql = "SELECT url.country_code AS alpha2, count(url.country_code) AS reps FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ? AND url.country_code IS NOT NULL GROUP BY url.country_code";
@@ -163,8 +181,9 @@ file_put_contents($tmpfname, json_encode($graph));
 
 $piecesGraph = explode('/data', $tmpfname);
 
-$sql = "select SUM(count_trackings) AS intr_lvl FROM (select tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level UNION SELECT tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY domain_name";
+//$sql = "select SUM(count_trackings) AS intr_lvl FROM (select tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level UNION SELECT tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY domain_name";
 
+$sql = "select update_timestamp, SUM(count_trackings) AS intr_lvl FROM (select domain.update_timestamp, tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY domain.update_timestamp, tracking.name, domain.name, tracking.intrusion_level UNION SELECT domain.update_timestamp, tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY domain.update_timestamp, tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY update_timestamp,domain_name";
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
 
@@ -172,15 +191,12 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
     if (mysqli_stmt_execute($stmt)) {
 
-        mysqli_stmt_bind_result($stmt, $intr_lvl);
+        mysqli_stmt_bind_result($stmt, $update_timestamp, $intr_lvl);
         while (mysqli_stmt_fetch($stmt)) {
         }
     }
     mysqli_stmt_close($stmt);
 }
-
-
-
 
 mysqli_close($link);
 
@@ -225,13 +241,20 @@ mysqli_close($link);
         }
 
         ?>
-    </div>
 
+
+        <form action="domain_analizer.php" method="post">
+            <input type="hidden" id="domain_url" name="domain_url" value="<?php echo $domain; ?>">
+            <input type="hidden" id="update_domain" name="update_domain" value="yes">
+
+            <h5 style="text-align:center;"> This domain was analized by ORM on <?php echo $update_timestamp; ?>. To re-analize it, click here: <input type="submit" class="btn btn-info" value="Update Information"></h5>
+        </form>
+    </div>
     <div class="grid-container-domain">
 
         <div class="tracking wrappertrack">
             <div id="tracking-grid">
-                <svg id="svgtracking" width="650" height="255"></svg>
+                <svg id="svgtracking" width="650" height="315"></svg>
 
 
             </div>
@@ -247,26 +270,25 @@ mysqli_close($link);
                     <tr>
                         <td>Url Name</td>
                         <td id="nodename" style="text-align: left;"></td>
-                    </tr>>
+                    </tr>
+                    <tr>
+                        <td>Tracking</td>
+                        <td id="tracking_type" style="text-align: left;"></td>
+                    </tr>
                     <tr>
                         <td>Type</td>
                         <td id="type" style="text-align: left;"></td>
                     </tr>
 
                     <tr>
-                        <td>Tracking</td>
-                        <td id="tracking_type" style="text-align: left;"></td>
-                    </tr>
-
-                    <tr>
-                        <td>Security State</td>
+                        <td>Using HTTPS</td>
                         <td id="ss" style="text-align: left;"></td>
                     </tr>
-
                     <tr>
                         <td>IP Address</td>
                         <td id="ipadd" style="text-align: left;"></td>
                     </tr>
+
 
                 </table>
 
@@ -757,7 +779,12 @@ mysqli_close($link);
 
                 document.getElementById("clicknode").style.display = "none";
                 document.getElementById("nodename").innerHTML = d.name;
-                document.getElementById("ss").innerHTML = d.state;
+                if (d.state == "secure") {
+                    document.getElementById("ss").innerHTML = "Yes";
+                } else {
+                    document.getElementById("ss").innerHTML = "No";
+                }
+
                 document.getElementById("ipadd").innerHTML = d.ip;
                 document.getElementById("type").innerHTML = d.type;
                 document.getElementById("tracking_type").innerHTML = d.tracking_type;
