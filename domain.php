@@ -1,6 +1,6 @@
 <?php
 require_once "config.php";
-$domain = trim($_GET["domain_url"]);
+$domain = htmlspecialchars(stripslashes(trim($_GET["domain_url"])));
 
 $codes = json_decode(file_get_contents('http://country.io/iso3.json'), true);
 
@@ -492,9 +492,7 @@ mysqli_close($link);
                         } 
                         else {
                             return "fill:orange";
-                        }
-                        
-                        
+                        }                        
                     })
                     .attr("x", 0)
                     .attr("height", y.bandwidth())
