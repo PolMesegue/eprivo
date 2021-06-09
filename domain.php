@@ -30,12 +30,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
 fclose($handle);
 
-
-
 $piecesMap = explode('/data', $tmpfname);
-
-
-
 
 $nodes[] = [];
 $links[] = [];
@@ -45,7 +40,7 @@ $tmp_id = -1;
 $typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
 $trackings = [];
 
-$sql = "select url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? UNION SELECT url.id, domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? ORDER BY id";
+$sql = "select url.id, url.url ,domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? UNION SELECT url.id, url.url ,domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? ORDER BY id";
 
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
@@ -53,7 +48,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     $param_domain = $domain;
 
     if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_bind_result($stmt, $id, $initiator, $type, $server_ip, $security_info, $tracking_name, $third_party);
+        mysqli_stmt_bind_result($stmt, $id, $name, $initiator, $type, $server_ip, $security_info, $tracking_name, $third_party);
         while (mysqli_stmt_fetch($stmt)) {
 
             if ($tmp_id == $id) {
@@ -63,7 +58,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
             } elseif ($tmp_id == -1) {
 
                 $tmp_initiator = $initiator;
-
+                $tmp_name = $name;
                 if (is_null($type)) {
                     $tmp_type = "no-type";
                 } else {
@@ -102,13 +97,13 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 if ($count_trackings == "Not-Tracking") {
                     $trackings[] = "Not-Tracking";
                 }
-                $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
+                $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
                 if ($tmp_initiator != null) {
                     $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
                 }
 
-
+                $tmp_name = $name;
                 $tmp_initiator = $initiator;
 
                 if (is_null($type)) {
@@ -151,7 +146,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
         if ($count_trackings == "Not-Tracking") {
             $trackings[] = "Not-Tracking";
         }
-        $nodes[$itn++] = ['id' => $tmp_id, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
+        $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
         if ($tmp_initiator != null) {
             $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -249,6 +244,10 @@ mysqli_close($link);
                     <th colspan="2" style="text-align: center;">Node Info <br>
                         <p id="clicknode">Click on a node to obtain information</p>
                     </th>
+                    <tr>
+                        <td>Url Name</td>
+                        <td id="nodename" style="text-align: left;"></td>
+                    </tr>>
                     <tr>
                         <td>Type</td>
                         <td id="type" style="text-align: left;"></td>
@@ -478,7 +477,7 @@ mysqli_close($link);
                 g.append("g")
                     .attr("class", "y axis")
                     .call(d3.axisLeft(y));
-                 
+
                 g.selectAll(".bar")
                     .data(data)
                     .enter().append("rect")
@@ -486,13 +485,11 @@ mysqli_close($link);
                     .attr("style", function(d) {
                         if (d.area == "Session cookies" || d.area == "Long-living cookies") {
                             return "fill:yellow";
-                        }
-                        else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)") {
+                        } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)") {
                             return "fill:red";
-                        } 
-                        else {
+                        } else {
                             return "fill:orange";
-                        }                        
+                        }
                     })
                     .attr("x", 0)
                     .attr("height", y.bandwidth())
@@ -759,6 +756,7 @@ mysqli_close($link);
                 d.fy = d.y;
 
                 document.getElementById("clicknode").style.display = "none";
+                document.getElementById("nodename").innerHTML = d.name;
                 document.getElementById("ss").innerHTML = d.state;
                 document.getElementById("ipadd").innerHTML = d.ip;
                 document.getElementById("type").innerHTML = d.type;

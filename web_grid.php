@@ -4,7 +4,7 @@ require_once "config.php";
 $domain = trim($_POST['domain_url']);
 
 echo "<table class=\"table table-hover table-bordered\" style=\"table-layout: fixed; width: 100%;\">";
-
+echo "<tr><td>Domain</td><td>" . $domain . "</td></tr>";
 
 $sql = "SELECT url.server_ip, url.country_code, url.certificate_id, url.security_info FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ? AND url.server_ip IS NOT NULL AND url.type =\"main_frame\"";
 
@@ -18,7 +18,13 @@ if ($stmt = mysqli_prepare($link, $sql)) {
         while (mysqli_stmt_fetch($stmt)) {
         }
         $decoded_json = json_decode($security_info, true);
-        echo "<tr><td>Security State</td><td>" . $decoded_json["state"] . "</td></tr>";
+        if ($decoded_json["state"] == "secure") {
+            echo "<tr><td>Using HTTPS</td><td> Yes </td></tr>";
+        }
+        else {
+            echo "<tr><td>Using HTTPS</td><td> No </td></tr>";
+        }
+
         echo "<tr><td>IP Address</td><td>$server_ip</td></tr>";
         echo "<tr><td>Host Country</td><td>$country_code</td></tr>";
     }
@@ -58,7 +64,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_close($stmt);
 }
 
-
+/*
 $sql = "SELECT json FROM certificate WHERE id = ?";
 if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_bind_param($stmt, "s", $cert_id);
@@ -76,7 +82,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
     mysqli_stmt_close($stmt);
 }
-
+*/
 $sql = "SELECT url.type, count(url.type) FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ? GROUP BY url.type";
 
 if ($stmt = mysqli_prepare($link, $sql)) {
