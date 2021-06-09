@@ -227,7 +227,7 @@ mysqli_close($link);
         <a href="about.php">About</a>
     </div>
 
-    <div class="wrapperlvl">
+    <div class="wrapperlvl" style="margin-bottom:30px;">
         <?php
         $rest = substr($intr_lvl, 0, -2);
         if ($rest >= "40") {
