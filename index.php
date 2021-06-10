@@ -70,7 +70,7 @@ mysqli_close($link);
 
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Percentage of Domains using Tracking</h5>
-                        <p> 98% of the analized Domains use atleast one tracking method</p>
+                        <p> <span id="lol">98</span>% of the analized Domains use atleast one tracking method</p>
                     </div>
                 </div>
                 <div class="carousel-item">
@@ -93,14 +93,6 @@ mysqli_close($link);
             </button>
         </div>
     </div>
-
-    <!--  <div class="charts">
-
-        <svg style="margin:auto;" id="donutIsTracking" width="600" height="600"></svg>
-        <svg style="margin:auto;" id="donutTrackingStats" width="600" height="600"></svg>
-
-
-    </div> -->
 
     <h2 style="text-align:center;"> Analize a domain with the Online Resource Mapper tool <br> and see how it's vulnerating your right to privacy </h2>
 
@@ -192,93 +184,95 @@ mysqli_close($link);
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     data_textjs = this.responseText;
+                    update_bars(data_textjs)
                 }
             };
 
             xhttp.open("POST", "tracking_grid.php", true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("domain_url=" + str);
-
-
-            setTimeout(function() {
-
-                data = JSON.parse(data_textjs);
-
-                d3.selectAll("#svgtracking > *").remove()
-                var svg = d3.select("#svgtracking"),
-                    margin = {
-                        top: 20,
-                        right: 10,
-                        bottom: 30,
-                        left: 170
-                    },
-                    width = +svg.attr("width") - margin.left - margin.right,
-                    height = +svg.attr("height") - margin.top - margin.bottom;
-
-                var tip = d3.tip()
-                    .attr('class', 'd3-tip')
-                    .offset([-10, 0])
-                    .html(function(d) {
-                        return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
-                    })
-
-                var x = d3.scaleLinear().range([0, width]);
-                var y = d3.scaleBand().range([height, 0]);
-
-                var g = svg.append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-                svg.call(tip);
-
-                x.domain([0, d3.max(data, function(d) {
-                    return d.value;
-                })]);
-                y.domain(data.map(function(d) {
-                    return d.area;
-                })).padding(0.1);
-
-                g.append("g")
-                    .attr("class", "x axis")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).ticks(2).tickFormat(function(d) {
-                        return parseInt(d);
-                    }).tickSizeInner([-height]));
-
-                g.append("g")
-                    .attr("class", "y axis")
-                    .call(d3.axisLeft(y));
-
-                g.selectAll(".bar")
-                    .data(data)
-                    .enter().append("rect")
-                    .attr("class", "bar")
-                    .attr("style", function(d) {
-                        if (d.area == "Session cookies" || d.area == "Long-living cookies") {
-                            return "fill:yellow";
-                        } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting") {
-                            return "fill:red";
-                        } else {
-                            return "fill:orange";
-                        }
-                    })
-                    .attr("x", 0)
-                    .attr("height", y.bandwidth())
-                    .attr("y", function(d) {
-                        return y(d.area);
-                    })
-                    .attr("width", function(d) {
-                        return x(d.value);
-                    })
-                    .on("mousemove", function(d) {
-                        tip.show(d);
-                    })
-
-                    .on("mouseout", function(d) {
-                        tip.hide(d);
-                    });
-
-            }, 500);
         }
+
+
+        function update_bars(data_textjs) {
+
+            data = JSON.parse(data_textjs);
+
+            d3.selectAll("#svgtracking > *").remove()
+            var svg = d3.select("#svgtracking"),
+                margin = {
+                    top: 20,
+                    right: 10,
+                    bottom: 30,
+                    left: 170
+                },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom;
+
+            var tip = d3.tip()
+                .attr('class', 'd3-tip')
+                .offset([-10, 0])
+                .html(function(d) {
+                    return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
+                })
+
+            var x = d3.scaleLinear().range([0, width]);
+            var y = d3.scaleBand().range([height, 0]);
+
+            var g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            svg.call(tip);
+
+            x.domain([0, d3.max(data, function(d) {
+                return d.value;
+            })]);
+            y.domain(data.map(function(d) {
+                return d.area;
+            })).padding(0.1);
+
+            g.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).ticks(2).tickFormat(function(d) {
+                    return parseInt(d);
+                }).tickSizeInner([-height]));
+
+            g.append("g")
+                .attr("class", "y axis")
+                .call(d3.axisLeft(y));
+
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("style", function(d) {
+                    if (d.area == "Session cookies" || d.area == "Long-living cookies") {
+                        return "fill:yellow";
+                    } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting") {
+                        return "fill:red";
+                    } else {
+                        return "fill:orange";
+                    }
+                })
+                .attr("x", 0)
+                .attr("height", y.bandwidth())
+                .attr("y", function(d) {
+                    return y(d.area);
+                })
+                .attr("width", function(d) {
+                    return x(d.value);
+                })
+                .on("mousemove", function(d) {
+                    tip.show(d);
+                })
+
+                .on("mouseout", function(d) {
+                    tip.hide(d);
+                });
+
+        }
+
 
         function updateWebGrid(str) {
             var xhttp;
@@ -335,6 +329,11 @@ mysqli_close($link);
                     .attr("height", height)
                     .append("g")
                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+                var color = d3.scaleOrdinal()
+                    .domain(["Not-Tracking", "Tracking"])
+                    .range(["rgb(80, 185, 255)", "rgb(255, 60, 60)"]);
             } else {
                 var svg = d3.select("#donutTrackingStats")
                     .append("svg")
@@ -342,14 +341,12 @@ mysqli_close($link);
                     .attr("height", height)
                     .append("g")
                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+                var color = d3.scaleOrdinal()
+                    .range(d3.schemeCategory20);
             }
 
             data = JSON.parse(data1);
-
-            // set the color scale
-            var color = d3.scaleOrdinal()
-                // .domain(["a", "b", "c", "d", "e", "f", "g", "h"])
-                .range(d3.schemeCategory10);
 
             // Compute the position of each group on the pie:
             var pie = d3.pie()
@@ -401,7 +398,9 @@ mysqli_close($link);
                     return [posA, posB, posC]
                 })
 
-            // Add the polylines between chart and labels:
+
+
+            let track, notrack, total;
             svg
                 .selectAll('allLabels')
                 .data(data_ready)
@@ -409,8 +408,18 @@ mysqli_close($link);
                 .append('text')
                 .text(function(d) {
                     console.log(d.data.key);
+                    if (str == "1") {
+                        if (d.data.key == "Not-Tracking") {
+                            notrack = d.data.value;
+                            notrack = parseFloat(notrack);
+                        } else {
+                            track = d.data.value;
+                            track = parseFloat(track);
+                        }
+                    }
                     return d.data.key
                 })
+                .attr('style', "margin:auto")
                 .attr('transform', function(d) {
                     var pos = outerArc.centroid(d);
                     var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
@@ -421,6 +430,18 @@ mysqli_close($link);
                     var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
                     return (midangle < Math.PI ? 'start' : 'end')
                 })
+            if (str == "1") {
+
+                total = track + notrack;
+                let percent;
+                percent = (track / total) * 100;
+
+                document.getElementById("lol")
+                document.getElementById("lol").innerHTML = percent.toFixed(2);
+            }
+
+
+
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
