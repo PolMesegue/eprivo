@@ -74,6 +74,20 @@
     overflow: auto;
     max-width: 1920px;
 }
+.charts {
+   /* border: 1px solid #ddd; */
+    height: 550px;
+    width: 90%;
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+    /*text-align:center;*/
+}
+.donuts {
+    text-align:center;
+    margin:auto;
+  
+}
 
 .wrapper {
     border: 1px solid #ddd;
