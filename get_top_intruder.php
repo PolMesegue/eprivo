@@ -18,8 +18,8 @@ echo "</tr>";
 while ($row = mysqli_fetch_assoc($result)) {
     echo "<tr id = {$row['domain_name']} onclick=\"updateTrackingGrid(this.id); updateWebGrid(this.id);\">";
     echo "<td class=\"align-middle\"> $pos </td>";
+    echo "<td id = \"top$pos\" class=\"align-middle\"> {$row['domain_name']}</td>";
     $pos++;
-    echo "<td class=\"align-middle\"> {$row['domain_name']}</td>";
     $rest = substr($row['intrusion_lvl'], 0, -2);  
     if ($rest >= "40") {
         echo "<td class=\"align-middle\"> <button class=\"btn-red\"> $rest </button></td>";

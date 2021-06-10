@@ -16,7 +16,7 @@
 </head>
 
 
-<body onload="showTableIntruder(), updateTrackingGrid('amazon.com'), updateWebGrid('amazon.com')">
+<body onload="showTableIntruder()">
 
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
@@ -91,6 +91,8 @@
                 if (this.readyState == 4 && this.status == 200) {
                     document.getElementById("nav-intruder").innerHTML =
                         this.responseText;
+                        updateTrackingGrid(document.getElementById("top1").innerHTML);
+                        updateWebGrid(document.getElementById("top1").innerHTML);
                 }
             };
             xhttp.open("GET", "get_top_intruder.php", true);
@@ -110,6 +112,7 @@
         }
 
         function updateTrackingGrid(str) {
+           
             var xhttp = new XMLHttpRequest();
             var data_textjs;
 
