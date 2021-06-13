@@ -110,9 +110,9 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
                 if (!is_null($tmp_security_info)) {
                     $decoded_json = json_decode($tmp_security_info, true);
-                    try {
+                    if (isset($decoded_json['state'])) {
                         $security_state = $decoded_json['state'];
-                    } catch (Exception $e) {
+                    } else {
                         $security_state = 'undefined';
                     }
                 } else {
@@ -166,9 +166,9 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
         if (!is_null($tmp_security_info)) {
             $decoded_json = json_decode($tmp_security_info, true);
-            try {
+            if (isset($decoded_json['state'])) {
                 $security_state = $decoded_json['state'];
-            } catch (Exception $e) {
+            } else {
                 $security_state = 'undefined';
             }
         } else {
