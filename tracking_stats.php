@@ -15,25 +15,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 }
 
 
-/*
-$data = "{";
 
-while ($row = mysqli_fetch_assoc($result)) {
-    $name = $row['name'];
-    $count = $row['count'];
-
-    $data = $data . "\"$name\"" . ": " . $count . ", ";
-}
-
-$data = substr($data, 0, -2);
-
-$data = $data . "}";
-
-mysqli_stmt_close($stmt);
-
-mysqli_close($link);
-
-*/
 
 
 echo json_encode($data);

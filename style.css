@@ -27,7 +27,7 @@
 
 .search {
     grid-area: search;
-    height: 100px;
+    height: 80px;
     max-width: 1920px;
     min-width: 1200px;
     margin-left: auto;

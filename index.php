@@ -1,34 +1,3 @@
-<?php
-
-require_once "config.php";
-
-$sql = "SELECT id FROM domain";
-if ($stmt = mysqli_prepare($link, $sql)) {
-    if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_store_result($stmt);
-        $num_domains = mysqli_stmt_num_rows($stmt);
-    }
-}
-
-mysqli_stmt_close($stmt);
-
-$sql = "Select count(intrusion_lvl) AS num FROM (SELECT domain_name, SUM(count_trackings) AS intrusion_lvl FROM (select tracking.name, domain.name AS domain_name, count(tracking.name) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id GROUP BY tracking.name, domain.name, tracking.intrusion_level UNION SELECT tracking.name, domain.name, count(tracking.name) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id GROUP BY tracking.name, domain.name, tracking.intrusion_level) AS tracking  GROUP BY domain_name) AS counts WHERE intrusion_lvl = 0";
-$result = mysqli_query($link, $sql);
-if ($row = mysqli_fetch_assoc($result)) {
-    $not_tracking = $row['num'];
-}
-
-$tracking = $num_domains - $row['num'];
-
-$tracking_stats = "{Tracking: $tracking, Not-Tracking: $not_tracking}";
-
-mysqli_stmt_close($stmt);
-
-mysqli_close($link);
-
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,7 +16,7 @@ mysqli_close($link);
 </head>
 
 
-<body onload="showTableIntruder(), get_use_of_tracking_stats(), get_tracking_stats()">
+<body onload="showTableIntruder(),showTable3rdp(),showTablePopular(), get_use_of_tracking_stats(), get_tracking_stats()">
 
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
@@ -94,7 +63,7 @@ mysqli_close($link);
         </div>
     </div>
 
-    <h2 style="text-align:center;"> Analize a domain with the Online Resource Mapper tool <br> and see how it's vulnerating your right to privacy </h2>
+    <h2 style="text-align:center;"> Analize a domain with the ePrivacy Observatory tool <br> and see how it's vulnerating your right to privacy </h2>
 
     <div class="grid-container">
         <div class="search">
@@ -107,7 +76,7 @@ mysqli_close($link);
                             <input type="submit" class="search-domain btn btn-primary px-5" value="Analize Domain">
                         </div>
                     </form>
-                    <p style="text-align:center;">Enter a Domain here, and if it's not analized yet by ORM, it will be queued and analized soon <br> Or you can also browse the following top-lists</p>
+                    <p style="text-align:center;">Enter a Domain here, and if it's not analized yet, it will be queued and analized soon <br> Or you can also browse the following top-lists</p>
                 </div>
             </div>
         </div>

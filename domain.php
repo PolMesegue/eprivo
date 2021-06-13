@@ -17,9 +17,6 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     }
 }
 
-
-
-
 $codes = json_decode(file_get_contents('http://country.io/iso3.json'), true);
 
 $sql = "SELECT url.country_code AS alpha2, count(url.country_code) AS reps FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON domain_url.url_id = url.id WHERE domain.name = ? AND url.country_code IS NOT NULL GROUP BY url.country_code";
@@ -57,6 +54,8 @@ $itl = 0;
 $tmp_id = -1;
 $typetocolor = ["main_frame" => 0, "stylesheet" => 1, "script" => 2, "image" => 3, "other" => 4, "font" => 5, "xmlhttprequest" => 6, "media" => 7, "sub_frame" => 8, "beacon" => 9, "websocket" => 10, "object" => 11, "csp_report" => 12];
 $trackings = [];
+$tracking_js = '[{"area":"WebGL fingerprinting","value":0},{"area":"Mouse fingerprinting","value":0},{"area":"Canvas fingerprinting (big)","value":0},{"area":"Canvas fingerprinting (small)","value":0},{"area":"Font fingerprinting","value":0},{"area":"Tracking cookies","value":0},{"area":"Third-party cookies","value":0},{"area":"JavaScript cookies","value":0},{"area":"Very long-living cookies","value":0},{"area":"Long-living cookies","value":0},{"area":"Session cookies","value":0}]';
+$tracking_js = json_decode($tracking_js, true);
 
 $sql = "select url.id, url.url ,domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? UNION SELECT url.id, url.url ,domain_url.initiator_frame, url.type, url.server_ip, url.security_info, tracking.name, domain_url.third_party FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? ORDER BY id";
 
@@ -71,7 +70,12 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
             if ($tmp_id == $id) {
                 if (!is_null($tracking_name)) {
-                    $trackings[] = " $tracking_name";
+                    $trackings[] = "$tracking_name";
+                    foreach ($tracking_js as $key => $value) {
+                        if ($value["area"] == $tracking_name) {
+                            $tracking_js[$key]["value"] = 1;
+                        }
+                    }
                 }
             } elseif ($tmp_id == -1) {
 
@@ -94,7 +98,12 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 }
                 $tmp_id = $id;
                 if (!is_null($tracking_name)) {
-                    $trackings[] = " $tracking_name";
+                    $trackings[] = "$tracking_name";
+                    foreach ($tracking_js as $key => $value) {
+                        if ($value["area"] == $tracking_name) {
+                            $tracking_js[$key]["value"] = 1;
+                        }
+                    }
                 }
                 $tmp_third_party = $third_party;
             } else {
@@ -115,7 +124,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 if ($count_trackings == "Not-Tracking") {
                     $trackings[] = "Not-Tracking";
                 }
-                $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
+                $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => json_encode($tracking_js), 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
                 if ($tmp_initiator != null) {
                     $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -142,8 +151,15 @@ if ($stmt = mysqli_prepare($link, $sql)) {
                 $tmp_third_party = $third_party;
                 $tmp_id = $id;
                 $trackings = [];
+                $tracking_js = '[{"area":"WebGL fingerprinting","value":0},{"area":"Mouse fingerprinting","value":0},{"area":"Canvas fingerprinting (big)","value":0},{"area":"Canvas fingerprinting (small)","value":0},{"area":"Font fingerprinting","value":0},{"area":"Tracking cookies","value":0},{"area":"Third-party cookies","value":0},{"area":"JavaScript cookies","value":0},{"area":"Very long-living cookies","value":0},{"area":"Long-living cookies","value":0},{"area":"Session cookies","value":0}]';
+                $tracking_js = json_decode($tracking_js, true);
                 if (!is_null($tracking_name)) {
-                    $trackings[] = " $tracking_name";
+                    $trackings[] = "$tracking_name";
+                    foreach ($tracking_js as $key => $value) {
+                        if ($value["area"] == $tracking_name) {
+                            $tracking_js[$key]["value"] = 1;
+                        }
+                    }
                 }
             }
         }
@@ -164,7 +180,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
         if ($count_trackings == "Not-Tracking") {
             $trackings[] = "Not-Tracking";
         }
-        $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => $trackings, 'is_tracking' => $count_trackings, 'is_third' => $is_third];
+        $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => json_encode($tracking_js), 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
         if ($tmp_initiator != null) {
             $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
@@ -183,15 +199,18 @@ $piecesGraph = explode('/data', $tmpfname);
 
 //$sql = "select SUM(count_trackings) AS intr_lvl FROM (select tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level UNION SELECT tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY domain_name";
 
-$sql = "select update_timestamp, SUM(count_trackings) AS intr_lvl FROM (select domain.update_timestamp, tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY domain.update_timestamp, tracking.name, domain.name, tracking.intrusion_level UNION SELECT domain.update_timestamp, tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY domain.update_timestamp, tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY update_timestamp,domain_name";
+//$sql = "select update_timestamp, SUM(count_trackings) AS intr_lvl FROM (select domain.update_timestamp, tracking.name, domain.name AS domain_name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id LEFT JOIN url_tracking ON url_tracking.url_id = url.id LEFT JOIN tracking ON tracking.id = url_tracking.tracking_id WHERE domain.name = ? GROUP BY domain.update_timestamp, tracking.name, domain.name, tracking.intrusion_level UNION SELECT domain.update_timestamp, tracking.name, domain.name, 0.5 * ((10+(count(tracking.name) * tracking.intrusion_level)) - ABS (10-(count(tracking.name) * tracking.intrusion_level))) AS count_trackings FROM domain JOIN domain_url ON domain.id = domain_url.domain_id JOIN url ON url.id = domain_url.url_id JOIN resource ON resource.id = url.resource_id LEFT JOIN resource_tracking ON resource_tracking.resource_id = resource.id LEFT JOIN tracking ON tracking.id = resource_tracking.tracking_id WHERE domain.name = ? GROUP BY domain.update_timestamp, tracking.name, domain.name, tracking.intrusion_level) AS tracking GROUP BY update_timestamp,domain_name";
+
+$sql = "SELECT update_timestamp, intrusion_level FROM domain WHERE name = ?";
+
 if ($stmt = mysqli_prepare($link, $sql)) {
-    mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
+    mysqli_stmt_bind_param($stmt, "s", $param_domain);
 
     $param_domain = $domain;
 
     if (mysqli_stmt_execute($stmt)) {
 
-        mysqli_stmt_bind_result($stmt, $update_timestamp, $intr_lvl);
+        mysqli_stmt_bind_result($stmt, $update_timestamp, $intrusion_level);
         while (mysqli_stmt_fetch($stmt)) {
         }
     }
@@ -229,15 +248,15 @@ mysqli_close($link);
 
     <div class="wrapperlvl" style="margin-bottom:30px;">
         <?php
-        $rest = substr($intr_lvl, 0, -2);
-        if ($rest >= "40") {
-            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-red\" disabled> $rest </button></h2>";
-        } elseif ($rest >= "21") {
-            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-orange\" disabled> $rest </button></h2>";
-        } elseif ($rest > "0") {
-            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-yellow\" disabled> $rest </button></h2>";
-        } elseif ($rest == NULL) {
+
+        if ($intrusion_level == NULL) {
             echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-green\" disabled> 0 </button></h2>";
+        } elseif ($intrusion_level >= "40") {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-red\" disabled> $intrusion_level </button></h2>";
+        } elseif ($intrusion_level >= "21") {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-orange\" disabled> $intrusion_level </button></h2>";
+        } elseif ($intrusion_level > "0") {
+            echo "<h2 style=\"text-align:center;padding-top:30px;\">Intrusion Level for $domain: <button class=\"btn-yellow\" disabled> $intrusion_level </button></h2>";
         }
 
         ?>
@@ -271,10 +290,7 @@ mysqli_close($link);
                         <td>Url Name</td>
                         <td id="nodename" style="text-align: left;"></td>
                     </tr>
-                    <tr>
-                        <td>Tracking</td>
-                        <td id="tracking_type" style="text-align: left;"></td>
-                    </tr>
+                
                     <tr>
                         <td>Type</td>
                         <td id="type" style="text-align: left;"></td>
@@ -299,7 +315,7 @@ mysqli_close($link);
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true" onclick="showGraph()">Resources</button>
-                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" onclick="updateWebGrid('<?php echo $domain; ?>')">Map</button>
+                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" onclick="updateWebGrid('<?php echo $domain; ?>'), updateTrackingGrid('<?php echo $domain; ?>')">Map</button>
 
                 </div>
             </nav>
@@ -444,6 +460,7 @@ mysqli_close($link);
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     data_textjs = this.responseText;
+                    update_bars(data_textjs);
                 }
             };
 
@@ -451,85 +468,85 @@ mysqli_close($link);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("domain_url=" + str);
 
+        }
 
-            setTimeout(function() {
+        function update_bars(data_textjs) {
 
-                data = JSON.parse(data_textjs);
+            data = JSON.parse(data_textjs);
 
+            d3.selectAll("#svgtracking > *").remove()
+            var svg = d3.select("#svgtracking"),
+                margin = {
+                    top: 20,
+                    right: 10,
+                    bottom: 30,
+                    left: 170
+                },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom;
 
-                var svg = d3.select("#svgtracking"),
-                    margin = {
-                        top: 20,
-                        right: 10,
-                        bottom: 30,
-                        left: 170
-                    },
-                    width = +svg.attr("width") - margin.left - margin.right,
-                    height = +svg.attr("height") - margin.top - margin.bottom;
+            var tip = d3.tip()
+                .attr('class', 'd3-tip')
+                .offset([-10, 0])
+                .html(function(d) {
+                    return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
+                })
 
-                var tip = d3.tip()
-                    .attr('class', 'd3-tip')
-                    .offset([-10, 0])
-                    .html(function(d) {
-                        return "<strong>Type: </strong><span class='details'>" + d.area + "<br></span>" + "<strong>Ocurrences: </strong><span class='details'>" + d.value + "</span>";
-                    })
+            var x = d3.scaleLinear().range([0, width]);
+            var y = d3.scaleBand().range([height, 0]);
 
-                var x = d3.scaleLinear().range([0, width]);
-                var y = d3.scaleBand().range([height, 0]);
+            var g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                var g = svg.append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            svg.call(tip);
 
-                svg.call(tip);
+            x.domain([0, d3.max(data, function(d) {
+                return d.value;
+            })]);
+            y.domain(data.map(function(d) {
+                return d.area;
+            })).padding(0.1);
 
-                x.domain([0, d3.max(data, function(d) {
-                    return d.value;
-                })]);
-                y.domain(data.map(function(d) {
-                    return d.area;
-                })).padding(0.1);
+            g.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).ticks(2).tickFormat(function(d) {
+                    return parseInt(d);
+                }).tickSizeInner([-height]));
 
-                g.append("g")
-                    .attr("class", "x axis")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).ticks(2).tickFormat(function(d) {
-                        return parseInt(d);
-                    }).tickSizeInner([-height]));
+            g.append("g")
+                .attr("class", "y axis")
+                .call(d3.axisLeft(y));
 
-                g.append("g")
-                    .attr("class", "y axis")
-                    .call(d3.axisLeft(y));
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("style", function(d) {
+                    if (d.area == "Session cookies" || d.area == "Long-living cookies") {
+                        return "fill:yellow";
+                    } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting") {
+                        return "fill:red";
+                    } else {
+                        return "fill:orange";
+                    }
+                })
+                .attr("x", 0)
+                .attr("height", y.bandwidth())
+                .attr("y", function(d) {
+                    return y(d.area);
+                })
+                .attr("width", function(d) {
+                    return x(d.value);
+                })
+                .on("mousemove", function(d) {
+                    tip.show(d);
+                })
 
-                g.selectAll(".bar")
-                    .data(data)
-                    .enter().append("rect")
-                    .attr("class", "bar")
-                    .attr("style", function(d) {
-                        if (d.area == "Session cookies" || d.area == "Long-living cookies") {
-                            return "fill:yellow";
-                        } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting") {
-                            return "fill:red";
-                        } else {
-                            return "fill:orange";
-                        }
-                    })
-                    .attr("x", 0)
-                    .attr("height", y.bandwidth())
-                    .attr("y", function(d) {
-                        return y(d.area);
-                    })
-                    .attr("width", function(d) {
-                        return x(d.value);
-                    })
-                    .on("mousemove", function(d) {
-                        tip.show(d);
-                    })
+                .on("mouseout", function(d) {
+                    tip.hide(d);
+                });
 
-                    .on("mouseout", function(d) {
-                        tip.hide(d);
-                    });
-
-            }, 500);
         }
     </script>
 
@@ -779,15 +796,18 @@ mysqli_close($link);
 
                 document.getElementById("clicknode").style.display = "none";
                 document.getElementById("nodename").innerHTML = d.name;
+
                 if (d.state == "secure") {
                     document.getElementById("ss").innerHTML = "Yes";
                 } else {
                     document.getElementById("ss").innerHTML = "No";
                 }
 
+                update_bars(d.tracking_type);
                 document.getElementById("ipadd").innerHTML = d.ip;
                 document.getElementById("type").innerHTML = d.type;
-                document.getElementById("tracking_type").innerHTML = d.tracking_type;
+            
+
             }
 
             function dragged(d) {
