@@ -18,12 +18,16 @@ if ($stmt = mysqli_prepare($link, $sql)) {
         while (mysqli_stmt_fetch($stmt)) {
         }
         $decoded_json = json_decode($security_info, true);
-        if ($decoded_json["state"] == "secure") {
-            echo "<tr><td>Using HTTPS</td><td> Yes </td></tr>";
-        }
-        else {
+        if (isset($decoded_json["state"])) {
+            if ($decoded_json["state"] == "secure") {
+                echo "<tr><td>Using HTTPS</td><td> Yes </td></tr>";
+            } else {
+                echo "<tr><td>Using HTTPS</td><td> No </td></tr>";
+            }
+        } else {
             echo "<tr><td>Using HTTPS</td><td> No </td></tr>";
         }
+
 
         echo "<tr><td>IP Address</td><td>$server_ip</td></tr>";
         echo "<tr><td>Host Country</td><td>$country_code</td></tr>";
@@ -93,7 +97,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_bind_result($stmt, $type, $reps);
         while (mysqli_stmt_fetch($stmt)) {
-            if ($type == "stylesheet" || $type == "script" || $type == "image" || $type == "sub_frame" ) {
+            if ($type == "stylesheet" || $type == "script" || $type == "image" || $type == "sub_frame") {
                 echo "<tr><td>No. $type</td><td>$reps</td></tr>";
             }
         }
@@ -107,5 +111,3 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
 mysqli_close($link);
 echo "</table>";
-
-?>

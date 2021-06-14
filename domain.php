@@ -180,7 +180,7 @@ if ($stmt = mysqli_prepare($link, $sql)) {
         if ($count_trackings == "Not-Tracking") {
             $trackings[] = "Not-Tracking";
         }
-        $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $decoded_json["state"], 'tracking_type' => json_encode($tracking_js), 'is_tracking' => $count_trackings, 'is_third' => $is_third];
+        $nodes[$itn++] = ['id' => $tmp_id, 'name' => $tmp_name, 'type' => $tmp_type, 'color_type' => $typetocolor[$tmp_type], 'ip' => $tmp_server_ip, 'state' => $security_state, 'tracking_type' => json_encode($tracking_js), 'is_tracking' => $count_trackings, 'is_third' => $is_third];
 
         if ($tmp_initiator != null) {
             $links[$itl++] = ['source' => $tmp_id, 'target' => $tmp_initiator];
