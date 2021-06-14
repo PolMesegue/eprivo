@@ -525,7 +525,7 @@ mysqli_close($link);
                 .attr("style", function(d) {
                     if (d.area == "Session cookies" || d.area == "Long-living cookies") {
                         return "fill:yellow";
-                    } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting") {
+                    } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting" || d.area == "Canvas fingerprinting (small)" || d.area == "Tracking cookies") {
                         return "fill:red";
                     } else {
                         return "fill:orange";

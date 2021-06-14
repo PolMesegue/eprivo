@@ -94,12 +94,15 @@
                     <button class="nav-link active" id="nav-intruder-tab" data-bs-toggle="tab" data-bs-target="#nav-intruder" type="button" role="tab" aria-controls="nav-intruder" aria-selected="true" onclick="showTableIntruder()">Top Intruder</button>
                     <button class="nav-link" id="nav-popular-tab" data-bs-toggle="tab" data-bs-target="#nav-popular" type="button" role="tab" aria-controls="nav-popular" aria-selected="false" onclick="showTablePopular()">Top Popular</button>
                     <button class="nav-link" id="nav-3rdp-tab" data-bs-toggle="tab" data-bs-target="#nav-3rdp" type="button" role="tab" aria-controls="nav-3rdp" aria-selected="false" onclick="showTable3rdp()">Top 3rd Parties</button>
+                   <!-- <button class="nav-link" id="nav-3rdp-tab" data-bs-toggle="tab" data-bs-target="#nav-trackers" type="button" role="tab" aria-controls="nav-trackers" aria-selected="false" onclick="showTableTrackers()">Top Trackers</button> -->
+
                 </div>
             </nav>
             <div class="tab-content wrapper" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-intruder" role="tabpanel" aria-labelledby="nav-intruder-tab"></div>
                 <div class="tab-pane fade" id="nav-popular" role="tabpanel" aria-labelledby="nav-popular-tab"></div>
                 <div class="tab-pane fade" id="nav-3rdp" role="tabpanel" aria-labelledby="nav-3rdp-tab"></div>
+              <!--  <div class="tab-pane fade" id="nav-trackers" role="tabpanel" aria-labelledby="nav-trackers-tab"></div> -->
             </div>
         </div>
 
@@ -218,7 +221,7 @@
                 .attr("style", function(d) {
                     if (d.area == "Session cookies" || d.area == "Long-living cookies") {
                         return "fill:yellow";
-                    } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting") {
+                    } else if (d.area == "Mouse fingerprinting" || d.area == "Canvas fingerprinting (big)" || d.area == "WebGL fingerprinting" || d.area == "Canvas fingerprinting (small)" || d.area == "Tracking cookies") {
                         return "fill:red";
                     } else {
                         return "fill:orange";
