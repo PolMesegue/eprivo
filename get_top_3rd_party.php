@@ -21,7 +21,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     echo "<td class=\"align-middle\"> {$row['num']} </td>";
     echo "<td class=\"align-middle\"> {$row['name']}</td>";
     $rest = $row['intrusion_level'];  
-    if ($row['intrusion_level'] == NULL) {
+    if ($rest == "0") {
         echo "<td class=\"align-middle\"> <button class=\"btn-green\" disabled> 0 </button></td>";
     }
     elseif ($rest >= "40") {
@@ -32,7 +32,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         echo "<td class=\"align-middle\"> <button class=\"btn-orange\" disabled> $rest </button></td>";
 
     }
-    elseif ($rest > "0") {
+    else {
         echo "<td class=\"align-middle\"> <button class=\"btn-yellow\" disabled> $rest </button></td>";
 
     }
