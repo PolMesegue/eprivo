@@ -39,7 +39,7 @@
 
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Percentage of Domains using Tracking</h5>
-                        <p> <span id="lol">98</span>% of the analized Domains use atleast one tracking method</p>
+                        <p> <span id="percentage">98</span>% of the <span id="total_domains"></span> analized Domains use atleast one tracking method</p>
                     </div>
                 </div>
                 <div class="carousel-item">
@@ -408,8 +408,8 @@
                 let percent;
                 percent = (track / total) * 100;
 
-                document.getElementById("lol")
-                document.getElementById("lol").innerHTML = percent.toFixed(2);
+                document.getElementById("percentage").innerHTML = percent.toFixed(2);
+                document.getElementById("total_domains").innerHTML = total;
             }
 
 
