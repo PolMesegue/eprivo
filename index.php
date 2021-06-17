@@ -39,7 +39,7 @@
 
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Percentage of Domains using Tracking</h5>
-                        <p> <span id="percentage">98</span>% of the <span id="total_domains"></span> analized Domains use atleast one tracking method</p>
+                        <p> <span id="percentage">98</span>% of the <span id="total_domains"></span> analized Domains use atleast one tracking method.</p>
                     </div>
                 </div>
                 <div class="carousel-item">
@@ -48,7 +48,7 @@
                     </div>
                     <div class="carousel-caption d-none d-md-block">
                         <h5 style="color:black;">Tracking Methods Analized</h5>
-                        <p style="color:black;"> Proportion of Tracking methods used</p>
+                        <p style="color:black;"> Proportion of Tracking methods used.</p>
                     </div>
                 </div>
             </div>
