@@ -9,7 +9,7 @@ $sql = "select tracking.id, tracking.name AS tracking_name, count(tracking.name)
 
 //echo "<h3> Tracking information for $domain</h3>";
 
-$data_text = '[{"area": "WebGL fingerprinting", "value": 0}, {"area": "Mouse fingerprinting", "value": 0},{"area": "Canvas fingerprinting (big)", "value": 0}, {"area": "Canvas fingerprinting (small)", "value": 0}, {"area": "Font fingerprinting", "value": 0}, {"area": "Tracking cookies", "value": 0}, {"area": "Third-party cookies", "value": 0}, {"area": "JavaScript cookies", "value": 0}, {"area": "Very long-living cookies", "value": 0}, {"area": "Long-living cookies", "value": 0}, {"area": "Session cookies", "value": 0}, {"area": "Default cookies", "value": 0}, {"area": "Accepted cookies", "value": 0}]';
+$data_text = '[{"area": "Accepted cookies", "value": 0}, {"area": "Default cookies", "value": 0}, {"area": "WebGL fingerprinting", "value": 0}, {"area": "Mouse fingerprinting", "value": 0},{"area": "Canvas fingerprinting (big)", "value": 0}, {"area": "Canvas fingerprinting (small)", "value": 0}, {"area": "Font fingerprinting", "value": 0}, {"area": "Tracking cookies", "value": 0}, {"area": "Third-party cookies", "value": 0}, {"area": "JavaScript cookies", "value": 0}, {"area": "Very long-living cookies", "value": 0}, {"area": "Long-living cookies", "value": 0}, {"area": "Session cookies", "value": 0}]';
 
 $data_text = json_decode($data_text, true);
 if ($stmt = mysqli_prepare($link, $sql)) {
