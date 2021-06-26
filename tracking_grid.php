@@ -9,7 +9,7 @@ $sql = "select tracking.id, tracking.name AS tracking_name, count(tracking.name)
 
 //echo "<h3> Tracking information for $domain</h3>";
 
-$data_text = '[{"area": "WebGL fingerprinting", "value": 0}, {"area": "Mouse fingerprinting", "value": 0},{"area": "Canvas fingerprinting (big)", "value": 0}, {"area": "Canvas fingerprinting (small)", "value": 0}, {"area": "Font fingerprinting", "value": 0}, {"area": "Tracking cookies", "value": 0}, {"area": "Third-party cookies", "value": 0}, {"area": "JavaScript cookies", "value": 0}, {"area": "Very long-living cookies", "value": 0}, {"area": "Long-living cookies", "value": 0}, {"area": "Session cookies", "value": 0}]';
+$data_text = '[{"area": "WebGL fingerprinting", "value": 0}, {"area": "Mouse fingerprinting", "value": 0},{"area": "Canvas fingerprinting (big)", "value": 0}, {"area": "Canvas fingerprinting (small)", "value": 0}, {"area": "Font fingerprinting", "value": 0}, {"area": "Tracking cookies", "value": 0}, {"area": "Third-party cookies", "value": 0}, {"area": "JavaScript cookies", "value": 0}, {"area": "Very long-living cookies", "value": 0}, {"area": "Long-living cookies", "value": 0}, {"area": "Session cookies", "value": 0}, {"area": "Default cookies", "value": 0}, {"area": "Accepted cookies", "value": 0}]';
 
 $data_text = json_decode($data_text, true);
 if ($stmt = mysqli_prepare($link, $sql)) {
@@ -30,6 +30,32 @@ if ($stmt = mysqli_prepare($link, $sql)) {
 
     mysqli_stmt_close($stmt);
 }
+
+$sql = "SELECT cookies_default, cookies_accepted FROM cookies WHERE domain_id IN (SELECT id FROM domain WHERE name = ?)";
+
+if ($stmt = mysqli_prepare($link, $sql)) {
+    mysqli_stmt_bind_param($stmt, "s", $param_domain);
+
+    $param_domain = $domain;
+
+    if (mysqli_stmt_execute($stmt)) {
+
+        mysqli_stmt_bind_result($stmt, $cookies_default, $cookies_accepted);
+        while (mysqli_stmt_fetch($stmt)) {
+            foreach ($data_text as $key => $value) {
+                if ($value["area"] == "Default cookies") {
+                    $data_text[$key]["value"] = $cookies_default;
+                }
+                if ($value["area"] == "Accepted cookies") {
+                    $data_text[$key]["value"] = $cookies_accepted;
+                }
+            }
+        }
+    }
+    mysqli_stmt_close($stmt);
+}
+
+
 
 mysqli_close($link);
 

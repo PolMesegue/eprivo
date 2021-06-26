@@ -217,6 +217,8 @@ if ($stmt = mysqli_prepare($link, $sql)) {
     mysqli_stmt_close($stmt);
 }
 
+
+
 mysqli_close($link);
 
 ?>
@@ -243,7 +245,9 @@ mysqli_close($link);
 <body onload="updateTrackingGrid('<?php echo $domain; ?>'), reloadGraph('is_tracking')">
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
+        <a href="statistics.php">Statistics</a>
         <a href="about.php">About</a>
+        
     </div>
 
     <div class="wrapperlvl" style="margin-bottom:30px;">

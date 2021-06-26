@@ -17,6 +17,7 @@
 <body>
     <div class="topnav">
         <a  href="index.php">Home</a>
+        <a href="statistics.php">Statistics</a>
         <a class="active" href="about.php">About</a>
     </div>
 

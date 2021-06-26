@@ -16,10 +16,11 @@
 </head>
 
 
-<body onload="showTableIntruder(),showTable3rdp(),showTablePopular(), get_use_of_tracking_stats(), get_tracking_stats()">
+<body onload="showTableIntruder(),showTable3rdp(),showTablePopular(),showTableTrackers(),get_use_of_tracking_stats(), get_tracking_stats()">
 
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
+        <a href="statistics.php">Statistics</a>
         <a href="about.php">About</a>
     </div>
 
@@ -94,7 +95,7 @@
                     <button class="nav-link active" id="nav-intruder-tab" data-bs-toggle="tab" data-bs-target="#nav-intruder" type="button" role="tab" aria-controls="nav-intruder" aria-selected="true" onclick="showTableIntruder()">Top Intruder</button>
                     <button class="nav-link" id="nav-popular-tab" data-bs-toggle="tab" data-bs-target="#nav-popular" type="button" role="tab" aria-controls="nav-popular" aria-selected="false" onclick="showTablePopular()">Top Popular</button>
                     <button class="nav-link" id="nav-3rdp-tab" data-bs-toggle="tab" data-bs-target="#nav-3rdp" type="button" role="tab" aria-controls="nav-3rdp" aria-selected="false" onclick="showTable3rdp()">Top 3rd Parties</button>
-                   <!-- <button class="nav-link" id="nav-3rdp-tab" data-bs-toggle="tab" data-bs-target="#nav-trackers" type="button" role="tab" aria-controls="nav-trackers" aria-selected="false" onclick="showTableTrackers()">Top Trackers</button> -->
+                    <button class="nav-link" id="nav-trackers-tab" data-bs-toggle="tab" data-bs-target="#nav-trackers" type="button" role="tab" aria-controls="nav-trackers" aria-selected="false" onclick="showTableTrackers()">Top Trackers</button>
 
                 </div>
             </nav>
@@ -102,7 +103,7 @@
                 <div class="tab-pane fade show active" id="nav-intruder" role="tabpanel" aria-labelledby="nav-intruder-tab"></div>
                 <div class="tab-pane fade" id="nav-popular" role="tabpanel" aria-labelledby="nav-popular-tab"></div>
                 <div class="tab-pane fade" id="nav-3rdp" role="tabpanel" aria-labelledby="nav-3rdp-tab"></div>
-              <!--  <div class="tab-pane fade" id="nav-trackers" role="tabpanel" aria-labelledby="nav-trackers-tab"></div> -->
+                <div class="tab-pane fade" id="nav-trackers" role="tabpanel" aria-labelledby="nav-trackers-tab"></div>
             </div>
         </div>
 
@@ -133,6 +134,17 @@
                 }
             };
             xhttp.open("GET", "get_top_intruder.php", true);
+            xhttp.send();
+        }
+        function showTableTrackers() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("nav-trackers").innerHTML =
+                        this.responseText;
+                }
+            };
+            xhttp.open("GET", "get_top_trackers.php", true);
             xhttp.send();
         }
 
