@@ -82,12 +82,13 @@ if ($update_domain == "yes") {
 <body style="cursor:wait">
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
+        <a href="statistics.php">Statistics</a>
         <a href="about.php">About</a>
     </div>
 
     <div class="wrapperlvl">
         <h1 style="text-align:center;padding-top:30px;"><?php echo $domain; ?> is being analized by ORM, please wait</h1>
-        <h2 style="text-align:center;padding-top:30px;"> The average waiting time is 30 seconds.</h2>
+        <h2 style="text-align:center;padding-top:30px;"> The average waiting time is 180 seconds.</h2>
 
         <p style="text-align:center;padding-top:30px;"><img src="771.svg"></p>
     </div>
@@ -114,7 +115,7 @@ if ($update_domain == "yes") {
                     window.location.replace("domain.php?domain_url=" + str);
                 } else {
                     endTime = new Date();
-                    if ((endTime - startTime) > 30000) {
+                    if ((endTime - startTime) > 300000) {
                         window.location.replace("error.php?code=1");
                     }
                 }
