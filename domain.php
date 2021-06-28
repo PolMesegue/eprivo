@@ -247,7 +247,7 @@ mysqli_close($link);
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
         <a href="statistics.php">Statistics</a>
-        <a href="about.php">About</a>
+       <!-- <a href="about.php">About</a> -->
         
     </div>
 

@@ -20,7 +20,8 @@ $err = htmlspecialchars(stripslashes(trim($_GET["code"])));
 
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
-        <a href="about.php">About</a>
+        <a href="statistics.php">Statistics</a>
+        <!--- <a href="about.php">About</a> --->
     </div>
     <h1 style="text-align:center;padding-top:30px;"> Error Page </h1>
     <?php 

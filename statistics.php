@@ -18,7 +18,7 @@
     <div class="topnav">
         <a href="index.php">Home</a>
         <a class="active" href="statistics.php">Statistics</a>
-        <a href="about.php">About</a>
+        <!--<a href="about.php">About</a>-->
     </div>
     <div style="text-align:center;">
         <b>IGNORING COOKIES</b>

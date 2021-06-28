@@ -21,7 +21,7 @@
     <div class="topnav">
         <a class="active" href="index.php">Home</a>
         <a href="statistics.php">Statistics</a>
-        <a href="about.php">About</a>
+       <!--- <a href="about.php">About</a> -->
     </div>
 
     <h1 style="text-align:center; margin-top:30px;"> ePrivacy Observatory </h1>
