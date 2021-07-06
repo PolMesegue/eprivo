@@ -204,7 +204,7 @@ $piecesGraph = explode('/data', $tmpfname);
 $sql = "SELECT update_timestamp, intrusion_level FROM domain WHERE name = ?";
 
 if ($stmt = mysqli_prepare($link, $sql)) {
-    mysqli_stmt_bind_param($stmt, "ss", $param_domain, $param_domain);
+    mysqli_stmt_bind_param($stmt, "s", $param_domain);
 
     $param_domain = $domain;
 
